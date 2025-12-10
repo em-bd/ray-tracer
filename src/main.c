@@ -19,14 +19,18 @@ int main() {
     initialize(c);
 
     // list of objects
-    sphere** spheres = malloc(sizeof(sphere*) * 3);
-    spheres[0] = malloc(sizeof(sphere));
-    spheres[0]->center = vec3_create(0, 0, -1);
-    spheres[0]->radius = 0.5;
-    spheres[1] = malloc(sizeof(sphere));
-    spheres[1]->center = vec3_create(0, -100.5, -1);
-    spheres[1]->radius = 100;
-    spheres[2] = NULL;
+    object** objects = malloc(sizeof(object*) * 3);
+    objects[0] = malloc(sizeof(object));
+    objects[0]->data = malloc(sizeof(sphere));
+    ((sphere *) (objects[0])->data)->center = vec3_create(0, 0, -1.0);
+    ((sphere *) (objects[0])->data)->radius = 0.5;
+    objects[0]->type = sphere_obj;
+    objects[1] = malloc(sizeof(object));
+    objects[1]->data = malloc(sizeof(sphere));
+    ((sphere *) (objects[1])->data)->center = vec3_create(0, -100.5, -1);
+    ((sphere *) (objects[1])->data)->radius = 100;
+    objects[1]->type = sphere_obj;
+    objects[2] = NULL;
 
     // Render
     f = fopen("image.ppm", "wb");
@@ -44,7 +48,7 @@ int main() {
                 ray r;
                 r.dir = vec3_sub(pixel_center, c->center);
                 r.orig = c->center;
-                color pixel_color = ray_color(r, spheres);
+                color pixel_color = ray_color(r, objects);
 
                 // write to file:
                 char * restrict line = malloc(sizeof(char) * 20);
@@ -53,10 +57,11 @@ int main() {
                 free(line);
             }
         }
-    for (int i = 0; spheres[i] != NULL; i++) {
-        free(spheres[i]);
+    for (int i = 0; objects[i] != NULL; i++) {
+        free(objects[i]->data);
+        free(objects[i]);
     }
-    free(spheres);
+    free(objects);
     fclose(f);
 
     return 0;

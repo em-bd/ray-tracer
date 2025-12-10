@@ -3,11 +3,12 @@
 /**
  * Determine if the ray hits the sphere:
  */
-bool hitSphere(ray r, interval i, hit_record* rec, sphere s) {
-    vec3 oc = vec3_sub(s.center, r.orig);
+bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
+    sphere* s = (sphere *) o->data;
+    vec3 oc = vec3_sub(s->center, r.orig);
     double a = length_sqd(r.dir);
     double h = vec3_dot(r.dir, oc);
-    double c = length_sqd(oc) - s.radius * s.radius;
+    double c = length_sqd(oc) - s->radius * s->radius;
 
     double discriminant = h*h - a*c;
     if (discriminant < 0)
@@ -26,11 +27,27 @@ bool hitSphere(ray r, interval i, hit_record* rec, sphere s) {
     // update hit record:
     rec->t = root;
     rec->p = at(r, rec->t);
-    vec3 outward_normal = vec3_scalar(vec3_sub(rec->p, s.center), (1.0 / s.radius));
+    vec3 outward_normal = vec3_scalar(vec3_sub(rec->p, s->center), (1.0 / s->radius));
     set_face_normal(r, outward_normal, rec);
 
     return true;
 }
+
+/**
+ * Determine if the ray hits the triangle:
+ */
+bool hit_triangle(ray r, interval i, hit_record* rec, object* o) {
+    //TODO: complete triangle hit calculation
+    return true;
+}
+
+/**
+ * Hit function array declaration:
+ */
+hit_fn hit_func[2] = {
+    hit_sphere,
+    hit_triangle,
+};
 
 /**
  * Sets the normal to face outward from the surface:

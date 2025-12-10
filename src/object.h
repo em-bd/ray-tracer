@@ -6,11 +6,19 @@
 #include "utils.h"
 
 /**
+ * Object Type enumerated data structure:
+ */
+typedef enum {
+    sphere_obj,
+    triangle_obj,
+} obj_type;
+
+/**
  * Object data structure:
  */
 typedef struct {
     void* data;
-    hit_func hit;
+    obj_type type;
 } object;
 
 /**
@@ -34,9 +42,13 @@ typedef struct {
     vec3 n;
 } triangle;
 
-typedef bool (*hit_func)(object*, ray, interval, hit_record);
+typedef bool (*hit_fn)(ray, interval, hit_record*, object*);
 
-bool hitSphere(ray, interval, hit_record*, sphere);
+bool hit_sphere(ray, interval, hit_record*, object*);
+
+bool hit_triangle(ray, interval, hit_record*, object*);
+
+extern hit_fn hit_func[2];
 
 void set_face_normal(ray, vec3, hit_record*);
 
