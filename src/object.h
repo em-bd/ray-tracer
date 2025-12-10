@@ -2,9 +2,8 @@
 #define OBJECT_H
 
 #include <stdbool.h>
-#include <math.h>
 
-#include "ray.h"
+#include "utils.h"
 
 typedef struct {
     point3 p;

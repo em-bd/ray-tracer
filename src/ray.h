@@ -3,6 +3,9 @@
 
 #include "vectors.h"
 
+/**
+ * Ray data structure:
+ */
 typedef struct {
     point3 orig;
     vec3 dir;

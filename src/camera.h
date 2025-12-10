@@ -1,11 +1,11 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "color.h"
 #include "object.h"
 
-#define infinity INFINITY
-
+/**
+ * Camera data structure:
+ */
 typedef struct {
     double aspect_ratio;
     int image_width;
