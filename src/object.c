@@ -1,10 +1,10 @@
 #include "object.h"
 
-bool hit_sphere(ray* r, sphere* s) {
-    vec3 oc = vec3_sub(s->center, r->orig);
-    double a = vec3_dot(r->dir,  r->dir);
-    double b = -2.0 * vec3_dot(r->dir, oc);
-    double c = vec3_dot(oc, oc) - s->radius*s->radius;
+bool hit_sphere(ray r, sphere s) {
+    vec3 oc = vec3_sub(s.center, r.orig);
+    double a = vec3_dot(r.dir,  r.dir);
+    double b = -2.0 * vec3_dot(r.dir, oc);
+    double c = vec3_dot(oc, oc) - s.radius*s.radius;
     double discriminant = b*b - 4*a*c;
     return (discriminant >= 0);
 

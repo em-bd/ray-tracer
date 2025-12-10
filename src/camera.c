@@ -13,7 +13,7 @@ void initialize(camera *c) {
 
     double focal_length = 1.0;
     double viewport_height = 2.0;
-    double viewport_width = viewport_height * (double) (c->image_width / c->image_height);
+    double viewport_width = viewport_height * ((double) c->image_width / (double) c->image_height);
 
     // calculate the vectors across the horizontal and down the vertical viewport edges:
     vec3 viewport_u = vec3_create(viewport_width, 0, 0);
@@ -37,13 +37,9 @@ void initialize(camera *c) {
  * Determine the color vector of the ray:
  * (currently makes the ray a blue-white gradient)
  */
-color ray_color(ray ray) {
-    // bool hit = hit_sphere(ray, sphere);
-    // if (hit) {
-    //     color c;
-    //     vec3_create(&c, 1.0, 0, 0);
-    //     return c;
-    // }
+color ray_color(ray ray, sphere s) {
+    if (hit_sphere(ray, s))
+        return vec3_create(1.0, 0, 0);
 
     // // check if the ray intersects a sphere:
     // for (int i = 0; spheres[i] != NULL; i++) {

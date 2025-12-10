@@ -24,7 +24,7 @@ typedef struct {
     vec3 n;
 } triangle;
 
-bool hit_sphere(ray*, sphere*);
+bool hit_sphere(ray, sphere);
 
 bool hitSphere(ray*, double, double, hit_record*, sphere*);
 

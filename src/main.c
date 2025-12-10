@@ -19,10 +19,10 @@ int main() {
     initialize(c);
 
     // list of objects
-    sphere **spheres = malloc(sizeof(sphere*));
-    sphere *s1 = malloc(sizeof(sphere));
-    s1->center = vec3_create(0, 0, -1);
-    s1->radius = 0.5;
+    sphere *spheres = malloc(sizeof(sphere));
+    sphere s1;
+    s1.center = vec3_create(0, 0, -1);
+    s1.radius = 0.5;
     spheres[0] = s1;
 
     // Render
@@ -55,7 +55,7 @@ int main() {
                 point3 pixel_center = vec3_add(c->pixel00_loc, r1);
                 ray r;
                 r.dir = vec3_sub(pixel_center, c->center);
-                color pixel_color = ray_color(r);
+                color pixel_color = ray_color(r, s1);
 
                 char * restrict line = malloc(sizeof(char) * 20);
                 write_color(line, pixel_color);

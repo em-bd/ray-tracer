@@ -18,6 +18,6 @@ typedef struct {
 
 void initialize(camera*);
 
-color ray_color(ray);
+color ray_color(ray, sphere);
 
 #endif
