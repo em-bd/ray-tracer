@@ -55,6 +55,7 @@ int main() {
                 point3 pixel_center = vec3_add(c->pixel00_loc, r1);
                 ray r;
                 r.dir = vec3_sub(pixel_center, c->center);
+                r.orig = c->center;
                 color pixel_color = ray_color(r, s1);
 
                 char * restrict line = malloc(sizeof(char) * 20);

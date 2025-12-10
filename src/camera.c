@@ -38,8 +38,12 @@ void initialize(camera *c) {
  * (currently makes the ray a blue-white gradient)
  */
 color ray_color(ray ray, sphere s) {
-    if (hit_sphere(ray, s))
-        return vec3_create(1.0, 0, 0);
+    double t = hit_sphere(ray, s);
+    if (t > 0.0) {
+        vec3 N = vec3_unit(vec3_sub(at(ray, t), s.center));
+        vec3 v = vec3_create(N.x + 1, N.y + 1, N.z + 1);
+        return vec3_scalar(v, 0.5);
+    }
 
     // // check if the ray intersects a sphere:
     // for (int i = 0; spheres[i] != NULL; i++) {
