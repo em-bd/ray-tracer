@@ -26,3 +26,5 @@ double size(interval);
 bool contains(interval, double);
 
 bool surrounds(interval, double);
+
+#endif

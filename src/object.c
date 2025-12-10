@@ -3,7 +3,7 @@
 /**
  * Determine if the ray hits the sphere:
  */
-bool hitSphere(ray r, double ray_tmin, double ray_tmax, hit_record* rec, sphere s) {
+bool hitSphere(ray r, interval i, hit_record* rec, sphere s) {
     vec3 oc = vec3_sub(s.center, r.orig);
     double a = length_sqd(r.dir);
     double h = vec3_dot(r.dir, oc);
@@ -17,9 +17,9 @@ bool hitSphere(ray r, double ray_tmin, double ray_tmax, hit_record* rec, sphere 
 
     double root = (h - sqrtd) / a;
     // check if the root is in the acceptable range:
-    if (root <= ray_tmin || ray_tmax <= root) {
+    if (root <= i.min || i.max <= root) {
         root = (h + sqrtd) / a;
-        if (root <= ray_tmin || ray_tmax <= root)
+        if (root <= i.min || i.max <= root)
             return false;
     }
 

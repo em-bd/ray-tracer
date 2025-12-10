@@ -23,7 +23,7 @@ typedef struct {
     vec3 n;
 } triangle;
 
-bool hitSphere(ray, double, double, hit_record*, sphere);
+bool hitSphere(ray, interval, hit_record*, sphere);
 
 void set_face_normal(ray, vec3, hit_record*);
 

@@ -41,7 +41,8 @@ color ray_color(ray ray, sphere** spheres) {
     // check if the ray intersects a sphere:
     for (int i = 0; spheres[i] != NULL; i++) {
         hit_record rec;
-        if (hitSphere(ray, 0, infinity, &rec, *spheres[i])) {
+        interval in = interval_create(0, infinity);
+        if (hitSphere(ray, in, &rec, *spheres[i])) {
             color c = vec3_create(1.0, 1.0, 1.0);
             return vec3_scalar(vec3_add(rec.normal, c), 0.5);
         }
