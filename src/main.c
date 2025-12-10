@@ -19,11 +19,14 @@ int main() {
     initialize(c);
 
     // list of objects
-    sphere *spheres = malloc(sizeof(sphere));
-    sphere s1;
-    s1.center = vec3_create(0, 0, -1);
-    s1.radius = 0.5;
-    spheres[0] = s1;
+    sphere** spheres = malloc(sizeof(sphere*) * 3);
+    spheres[0] = malloc(sizeof(sphere));
+    spheres[0]->center = vec3_create(0, 0, -1);
+    spheres[0]->radius = 0.5;
+    spheres[1] = malloc(sizeof(sphere));
+    spheres[1]->center = vec3_create(0, -100.5, -1);
+    spheres[1]->radius = 100;
+    spheres[2] = NULL;
 
     // Render
     f = fopen("image.ppm", "wb");
@@ -32,39 +35,28 @@ int main() {
 
         for (int j = 0; j < c->image_height; j++) {
             for (int i = 0; i < c->image_width; i++) {
-                // // pixel center:
-                // vec3 r1 = vec3_add(
-                //     vec3_scalar(c->pixel_delta_u, (double) i), 
-                //     vec3_scalar(c->pixel_delta_v, (double) j));
-                // point3 pixel_center = vec3_add(c->pixel00_loc, r1);
-
-                // // ray direction:
-                // ray* r = malloc(sizeof(ray));
-                // r->dir = vec3_sub(pixel_center, c->center);
-                // // ray origin:
-                // r->orig = c->center;
-
-                // // color pixel_color = ray_color(r, spheres);
-                // color pixel_color = ray_color(r, s1);
-                // char* restrict line = malloc(sizeof(const char*) * 20);
-                // write_color(line, pixel_color);
-                // fprintf(f, "%s", line);
-                // free(line);
+                // pixel center logic:
                 vec3 r1 = vec3_add(vec3_scalar(c->pixel_delta_u, (double) i), 
                                     vec3_scalar(c->pixel_delta_v, (double) j));
                 point3 pixel_center = vec3_add(c->pixel00_loc, r1);
+
+                // pixel color logic:
                 ray r;
                 r.dir = vec3_sub(pixel_center, c->center);
                 r.orig = c->center;
-                color pixel_color = ray_color(r, s1);
+                color pixel_color = ray_color(r, spheres);
 
+                // write to file:
                 char * restrict line = malloc(sizeof(char) * 20);
                 write_color(line, pixel_color);
                 fprintf(f, "%s", line);
                 free(line);
             }
         }
-
+    for (int i = 0; spheres[i] != NULL; i++) {
+        free(spheres[i]);
+    }
+    free(spheres);
     fclose(f);
 
     return 0;

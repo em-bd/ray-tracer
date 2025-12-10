@@ -37,26 +37,15 @@ void initialize(camera *c) {
  * Determine the color vector of the ray:
  * (currently makes the ray a blue-white gradient)
  */
-color ray_color(ray ray, sphere s) {
-    double t = hit_sphere(ray, s);
-    if (t > 0.0) {
-        vec3 N = vec3_unit(vec3_sub(at(ray, t), s.center));
-        vec3 v = vec3_create(N.x + 1, N.y + 1, N.z + 1);
-        return vec3_scalar(v, 0.5);
+color ray_color(ray ray, sphere** spheres) {
+    // check if the ray intersects a sphere:
+    for (int i = 0; spheres[i] != NULL; i++) {
+        hit_record rec;
+        if (hitSphere(ray, 0, infinity, &rec, *spheres[i])) {
+            color c = vec3_create(1.0, 1.0, 1.0);
+            return vec3_scalar(vec3_add(rec.normal, c), 0.5);
+        }
     }
-
-    // // check if the ray intersects a sphere:
-    // for (int i = 0; spheres[i] != NULL; i++) {
-    //     hit_record *rec = malloc(sizeof(hit_record));
-    //     if (hitSphere(ray, 0, infinity, rec, *spheres[i])) {
-    //         color hit;
-    //         color c;
-    //         c.x = c.y = c.z = 1.0;
-    //         vec3_add(&hit, *rec->normal, c);
-    //         vec3_scalar(&hit, hit, 0.5);
-    //         return hit;
-    //     }
-    // }
 
     vec3 unit_dir = vec3_unit(ray.dir);
     double a = 0.5 * (unit_dir.y + 1.0);
