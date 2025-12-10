@@ -32,21 +32,32 @@ int main() {
 
         for (int j = 0; j < c->image_height; j++) {
             for (int i = 0; i < c->image_width; i++) {
-                // pixel center:
-                vec3 r1 = vec3_add(
-                    vec3_scalar(c->pixel_delta_u, (double) i), 
-                    vec3_scalar(c->pixel_delta_v, (double) j));
+                // // pixel center:
+                // vec3 r1 = vec3_add(
+                //     vec3_scalar(c->pixel_delta_u, (double) i), 
+                //     vec3_scalar(c->pixel_delta_v, (double) j));
+                // point3 pixel_center = vec3_add(c->pixel00_loc, r1);
+
+                // // ray direction:
+                // ray* r = malloc(sizeof(ray));
+                // r->dir = vec3_sub(pixel_center, c->center);
+                // // ray origin:
+                // r->orig = c->center;
+
+                // // color pixel_color = ray_color(r, spheres);
+                // color pixel_color = ray_color(r, s1);
+                // char* restrict line = malloc(sizeof(const char*) * 20);
+                // write_color(line, pixel_color);
+                // fprintf(f, "%s", line);
+                // free(line);
+                vec3 r1 = vec3_add(vec3_scalar(c->pixel_delta_u, (double) i), 
+                                    vec3_scalar(c->pixel_delta_v, (double) j));
                 point3 pixel_center = vec3_add(c->pixel00_loc, r1);
+                ray r;
+                r.dir = vec3_sub(pixel_center, c->center);
+                color pixel_color = ray_color(r);
 
-                // ray direction:
-                ray* r = malloc(sizeof(ray));
-                r->dir = vec3_sub(pixel_center, c->center);
-                // ray origin:
-                r->orig = c->center;
-
-                // color pixel_color = ray_color(r, spheres);
-                color pixel_color = ray_color(r, s1);
-                char* restrict line = malloc(sizeof(const char*) * 20);
+                char * restrict line = malloc(sizeof(char) * 20);
                 write_color(line, pixel_color);
                 fprintf(f, "%s", line);
                 free(line);

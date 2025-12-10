@@ -66,15 +66,8 @@ vec3 vec3_negative(vec3 v) {
 }
 
 /**
- * Helper
- */
-double length_sqd(vec3 v) {
-    return v.x * v.x + v.y*v.y + v.z*v.z;
-}
-
-/**
  * Length of the vector
  */
 double vec3_length(vec3 v) {
-    return sqrt(length_sqd(v));
+    return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
