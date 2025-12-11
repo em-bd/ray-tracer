@@ -13,4 +13,6 @@ typedef struct {
 
 point3 at(ray, double);
 
+ray ray_create(vec3, vec3);
+
 #endif

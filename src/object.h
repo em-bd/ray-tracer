@@ -3,7 +3,9 @@
 
 #include <stdbool.h>
 
-#include "utils.h"
+#include "color.h"
+#include "ray.h"
+#include "interval.h"
 
 /**
  * Object Type enumerated data structure:

@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+
+#include "utils.h"
 
 typedef struct {
     double x;
@@ -29,6 +30,13 @@ vec3 vec3_scalar(vec3, double);
 vec3 vec3_unit(vec3);
 
 vec3 vec3_negative(vec3);
+
+vec3 vec3_rand();
+
+vec3 vec3_random(interval);
+
+vec3 random_unit_vector();
+vec3 random_on_hemisphere(vec3);
 
 double vec3_length(vec3);
 

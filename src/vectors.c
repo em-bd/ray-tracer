@@ -65,6 +65,40 @@ vec3 vec3_negative(vec3 v) {
     return vec3_create(-v.x, -v.y, -v.z);
 }
 
+/**
+ * Generate a random vector:
+ */
+vec3 vec3_rand() {
+    return vec3_create(rand_double(), rand_double(), rand_double());
+}
+
+/**
+ * Generate a random vector with bounds for coordinates:
+ */
+vec3 vec3_random(interval i) {
+    return vec3_create(random_double(i), random_double(i), random_double(i));
+}
+
+/**
+ * Generates a random unit vector:
+ */
+vec3 random_unit_vector() {
+    do {
+        vec3 p = vec3_random(interval_create(-1.0, 1.0));
+        double lensq = length_sqd(p);
+        if (1e-160 < lensq && lensq <= 1)
+            return p;
+    } while (true);
+}
+
+vec3 random_on_hemisphere(vec3 normal) {
+    vec3 on_unit_sphere = random_unit_vector();
+    if (vec3_dot(on_unit_sphere, normal) > 0.0)
+        return on_unit_sphere;
+    else
+        return vec3_negative(on_unit_sphere);
+}
+
 double length_sqd(vec3 v) {
     return v.x*v.x + v.y*v.y + v.z*v.z;
 }

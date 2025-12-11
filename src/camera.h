@@ -2,6 +2,9 @@
 #define CAMERA_H
 
 #include "object.h"
+#include "color.h"
+#include "ray.h"
+#include "interval.h"
 
 #define SAMPLES_PER_PIXEL 100
 
@@ -17,6 +20,7 @@ typedef struct {
     vec3 pixel_delta_u;
     vec3 pixel_delta_v;
     double pixel_samples_scale;
+    int max_depth;
 } camera;
 
 extern camera* c;
@@ -26,6 +30,6 @@ void initialize();
 
 void render();
 
-color ray_color(ray, object**);
+color ray_color(ray, int, object**);
 
 #endif
