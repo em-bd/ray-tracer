@@ -25,6 +25,8 @@ vec3 vec3_sub(vec3, vec3);
 
 vec3 vec3_add(vec3, vec3);
 
+vec3 vec3_mul(vec3, vec3);
+
 vec3 vec3_scalar(vec3, double);
 
 vec3 vec3_unit(vec3);
@@ -39,8 +41,12 @@ vec3 random_unit_vector();
 
 vec3 random_on_hemisphere(vec3);
 
+vec3 reflect(vec3, vec3);
+
 double vec3_length(vec3);
 
 double length_sqd(vec3);
+
+bool near_zero(vec3);
 
 #endif

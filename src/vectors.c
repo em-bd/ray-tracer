@@ -45,6 +45,13 @@ vec3 vec3_add(vec3 v, vec3 w) {
 }
 
 /**
+ * Multiply element by element:
+ */
+vec3 vec3_mul(vec3 v, vec3 w) {
+    return vec3_create(v.x * w.x, v.y * w.y, v.z * w.z);
+}
+
+/**
  * Multiple a vector by a scalar
  */
 vec3 vec3_scalar(vec3 v, double s) {
@@ -99,6 +106,16 @@ vec3 random_on_hemisphere(vec3 normal) {
         return vec3_negative(on_unit_sphere);
 }
 
+/**
+ * Computing reflected vector:
+ */
+vec3 reflect(vec3 v, vec3 n) {
+    return vec3_sub(v, vec3_scalar(n, (2.0 * vec3_dot(v, n))));
+}
+
+/**
+ * Vector length helper:
+ */
 double length_sqd(vec3 v) {
     return v.x*v.x + v.y*v.y + v.z*v.z;
 }
@@ -108,4 +125,12 @@ double length_sqd(vec3 v) {
  */
 double vec3_length(vec3 v) {
     return sqrt(length_sqd(v));
+}
+
+/**
+ * Find if the vector is close to 0 in all directions:
+ */
+bool near_zero(vec3 v) {
+    double s = 1e-8;
+    return (fabs(v.x) < s) && (fabs(v.y) < s) && (fabs(v.z) < s);
 }

@@ -3,9 +3,8 @@
 
 #include <stdbool.h>
 
-#include "color.h"
-#include "ray.h"
 #include "interval.h"
+#include "material.h"
 
 /**
  * Object Type enumerated data structure:
@@ -23,19 +22,10 @@ typedef struct {
     obj_type type;
 } object;
 
-/**
- * Hit record data structure:
- */
-typedef struct {
-    point3 p;
-    vec3 normal;
-    double t;
-    bool front_face;
-} hit_record;
-
 typedef struct {
     point3 center;
     double radius;
+    material* mat;
 } sphere;
 
 typedef struct {
@@ -54,5 +44,7 @@ bool hit_triangle(ray, interval, hit_record*, object*);
 extern hit_fn hit_func[2];
 
 void set_face_normal(ray, vec3, hit_record*);
+
+sphere sphere_create(vec3, double, material*);
 
 #endif

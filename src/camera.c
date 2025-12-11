@@ -97,18 +97,23 @@ void render() {
  * Determine the color vector of the ray:
  * (currently makes the ray a blue-white gradient)
  */
-color ray_color(ray ray, int depth, object** objs) {
+color ray_color(ray r, int depth, object** objs) {
     // if we've exceeded the ray bounce limit, no more light is gathered:
     if (depth <= 0)
         return vec3_create(0, 0, 0);
     // check if the ray intersects anything:
     hit_record rec;
-    if (hit(ray, interval_create(0.001, infinity), &rec, objs)) {
-        vec3 direction = vec3_add(rec.normal, random_unit_vector());
-        return vec3_scalar(ray_color(ray_create(rec.p, direction), --depth, objects), 0.1);
+    if (hit(r, interval_create(0.001, infinity), &rec, objs)) {
+        // vec3 direction = vec3_add(rec.normal, random_unit_vector());
+        // return vec3_scalar(ray_color(ray_create(rec.p, direction), --depth, objects), 0.1);
+        ray scattered;
+        color attenuation;
+        if (scatter_func[rec.mat->type](r, rec, &attenuation, &scattered, rec.mat))
+            return vec3_mul(ray_color(scattered, --depth, objects), attenuation);
+        return vec3_create(0, 0, 0);
     }
 
-    vec3 unit_dir = vec3_unit(ray.dir);
+    vec3 unit_dir = vec3_unit(r.dir);
     double a = 0.5 * (unit_dir.y + 1.0);
 
     color white = vec3_create(1.0, 1.0, 1.0);

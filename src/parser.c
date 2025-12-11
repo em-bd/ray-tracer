@@ -5,6 +5,43 @@
 FILE* f = NULL;
 
 /**
+ * Load a metal material onto an object:
+ */
+material* loadMetal() {
+    material* mat = malloc(sizeof(material));
+    metal* m = malloc(sizeof(metal));
+
+    double x = atof(strtok(NULL, ","));
+    double y = atof(strtok(NULL, ","));
+    double z = atof(strtok(NULL, ","));
+    double fuzz = atof(strtok(NULL, ","));
+
+    *m = metal_create(x, y, z, fuzz);
+    mat->data = m;
+    mat->type = metal_type;
+
+    return mat;
+}
+
+/**
+ * Load a lambertian material onto an object:
+ */
+material* loadLambertian() {
+    material* mat = malloc(sizeof(material));
+    lambertian* l = malloc(sizeof(lambertian));
+
+    double x = atof(strtok(NULL, ","));
+    double y = atof(strtok(NULL, ","));
+    double z = atof(strtok(NULL, ","));
+
+    *l = lambertian_create(x, y, z);
+    mat->data = l;
+    mat->type = lambertian_type;
+
+    return mat;
+}
+
+/**
  * Loading a sphere from a CSV file:
  */
 void loadSphere(int i) {
@@ -20,8 +57,11 @@ void loadSphere(int i) {
         exit(1);
     }
 
-    s->center = vec3_create(x, y, z);
-    s->radius = r;
+    char* mat = strtok(NULL, ",");
+    if (strcmp(mat, "metal") == 0)
+        *s = sphere_create(vec3_create(x, y, z), r, loadMetal());
+    else if (strcmp(mat, "lambertian") == 0)
+        *s = sphere_create(vec3_create(x, y, z), r, loadLambertian());
     
     object* o = malloc(sizeof(object));
     o->data = s;

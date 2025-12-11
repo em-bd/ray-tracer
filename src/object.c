@@ -51,6 +51,7 @@ bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
     rec->p = at(r, rec->t);
     vec3 outward_normal = vec3_scalar(vec3_sub(rec->p, s->center), (1.0 / s->radius));
     set_face_normal(r, outward_normal, rec);
+    rec->mat = ((sphere*) o->data)->mat;
 
     return true;
 }
@@ -77,4 +78,12 @@ hit_fn hit_func[2] = {
 void set_face_normal(ray r, vec3 outward_normal, hit_record* rec) {
     rec->front_face = vec3_dot(r.dir, outward_normal) < 0;
     rec->normal = rec->front_face ? outward_normal : vec3_negative(outward_normal);
+}
+
+sphere sphere_create(vec3 center, double radius, material* mat) {
+    sphere s;
+    s.center = center;
+    s.radius = radius;
+    s.mat = mat;
+    return s;
 }
