@@ -114,6 +114,16 @@ vec3 reflect(vec3 v, vec3 n) {
 }
 
 /**
+ * Computing refracted vector:
+ */
+vec3 refract(vec3 v, vec3 n, double etai_over_etat) {
+    double cos_theta = fmin(vec3_dot(vec3_negative(v), n), 1.0);
+    vec3 r_out_perp = vec3_scalar(vec3_add(v, vec3_scalar(n, cos_theta)), etai_over_etat);
+    vec3 r_out_parallel = vec3_scalar(n, sqrt(fabs(1.0 - length_sqd(r_out_perp))));
+    return vec3_add(r_out_perp, r_out_parallel);
+}
+
+/**
  * Vector length helper:
  */
 double length_sqd(vec3 v) {

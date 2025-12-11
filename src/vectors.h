@@ -43,6 +43,8 @@ vec3 random_on_hemisphere(vec3);
 
 vec3 reflect(vec3, vec3);
 
+vec3 refract(vec3, vec3, double);
+
 double vec3_length(vec3);
 
 double length_sqd(vec3);

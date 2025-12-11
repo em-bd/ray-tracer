@@ -20,6 +20,15 @@ metal metal_create(double x, double y, double z, double fuzz) {
 }
 
 /**
+ * Create a dielectric:
+ */
+dielectric dielectric_create(double refraction_index) {
+    dielectric d;
+    d.refraction_index = refraction_index;
+    return d;
+}
+
+/**
  * Scatter for a lambertian:
  */
 bool lambertian_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered, material* mat) {
@@ -51,7 +60,24 @@ bool metal_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered,
     return (vec3_dot(scattered->dir, rec.normal) > 0);
 }
 
-scatter_fn scatter_func[2] = {
+/**
+ * Scatter for a dielectric material:
+ */
+bool dielectric_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered, material* mat) {
+    dielectric d = *((dielectric*) mat->data);
+
+    *attenuation = vec3_create(1.0, 1.0, 1.0);
+    double ri = rec.front_face ? (1.0 / d.refraction_index) : d.refraction_index;
+
+    vec3 unit_dir = vec3_unit(r_in.dir);
+    vec3 refracted = refract(unit_dir, rec.normal, ri);
+
+    *scattered = ray_create(rec.p, refracted);
+    return true;
+}
+
+scatter_fn scatter_func[3] = {
     lambertian_scatter,
     metal_scatter,
+    dielectric_scatter,
 };

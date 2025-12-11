@@ -9,7 +9,15 @@ FILE* f = NULL;
  */
 material* loadMetal() {
     material* mat = malloc(sizeof(material));
+    if (mat == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
     metal* m = malloc(sizeof(metal));
+    if (m == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
 
     double x = atof(strtok(NULL, ","));
     double y = atof(strtok(NULL, ","));
@@ -28,7 +36,15 @@ material* loadMetal() {
  */
 material* loadLambertian() {
     material* mat = malloc(sizeof(material));
+    if (mat == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
     lambertian* l = malloc(sizeof(lambertian));
+    if (l == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
 
     double x = atof(strtok(NULL, ","));
     double y = atof(strtok(NULL, ","));
@@ -37,6 +53,30 @@ material* loadLambertian() {
     *l = lambertian_create(x, y, z);
     mat->data = l;
     mat->type = lambertian_type;
+
+    return mat;
+}
+
+/**
+ * Load a dielectric material:
+ */
+material* loadDielectric() {
+    material* mat = malloc(sizeof(material));
+    if (mat == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
+    dielectric* d = malloc(sizeof(dielectric));
+    if (d == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
+
+    double refraction_index = atof(strtok(NULL, ","));
+
+    *d = dielectric_create(refraction_index);
+    mat->data = d;
+    mat->type = dielectric_type;
 
     return mat;
 }
@@ -62,6 +102,8 @@ void loadSphere(int i) {
         *s = sphere_create(vec3_create(x, y, z), r, loadMetal());
     else if (strcmp(mat, "lambertian") == 0)
         *s = sphere_create(vec3_create(x, y, z), r, loadLambertian());
+    else if (strcmp(mat, "dielectric") == 0)
+        *s = sphere_create(vec3_create(x, y, z), r, loadDielectric());
     
     object* o = malloc(sizeof(object));
     o->data = s;

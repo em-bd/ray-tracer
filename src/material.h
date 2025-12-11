@@ -7,6 +7,7 @@
 typedef enum {
     lambertian_type,
     metal_type,
+    dielectric_type,
 } scatter_type;
 
 /**
@@ -33,6 +34,13 @@ typedef struct {
 } metal;
 
 /**
+ * Dielectric material data structure:
+ */
+typedef struct {
+    double refraction_index;
+} dielectric;
+
+/**
  * Hit record data structure:
  */
 typedef struct {
@@ -49,10 +57,14 @@ lambertian lambertian_create(double, double, double);
 
 metal metal_create(double, double, double, double);
 
+dielectric dielectric_create(double);
+
 bool lambertian_scatter(ray, hit_record, color*, ray*, material*);
 
 bool metal_scatter(ray, hit_record, color*, ray*, material*);
 
-extern scatter_fn scatter_func[2];
+bool dielectric_scatter(ray, hit_record, color*, ray*, material*);
+
+extern scatter_fn scatter_func[3];
 
 #endif
