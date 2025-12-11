@@ -1,9 +1,13 @@
 #include "camera.h"
 
+camera* c = NULL;
+object** objects = NULL;
+
 /**
  * Initialize the camera:
  */
-void initialize(camera *c) {
+void initialize() {
+    c = malloc(sizeof(camera));
     c->aspect_ratio = 16.0 / 9.0;
     c->image_width = 400;
     c->image_height = (int) (c->image_width / c->aspect_ratio);
@@ -34,18 +38,51 @@ void initialize(camera *c) {
 }
 
 /**
+ * Render the scene with the provided list of objects:
+ */
+void render() {
+    FILE *f;
+    f = fopen("image.ppm", "wb");
+    fprintf(f, "P3\n%d\n%d\n255\n", c->image_width, c->image_height);
+
+        for (int j = 0; j < c->image_height; j++) {
+            for (int i = 0; i < c->image_width; i++) {
+                // pixel center logic:
+                vec3 r1 = vec3_add(vec3_scalar(c->pixel_delta_u, (double) i), 
+                                    vec3_scalar(c->pixel_delta_v, (double) j));
+                point3 pixel_center = vec3_add(c->pixel00_loc, r1);
+
+                // pixel color logic:
+                ray r;
+                r.dir = vec3_sub(pixel_center, c->center);
+                r.orig = c->center;
+                color pixel_color = ray_color(r, objects);
+
+                // write to file:
+                char * restrict line = malloc(sizeof(char) * 20);
+                write_color(line, pixel_color);
+                fprintf(f, "%s", line);
+                free(line);
+            }
+        }
+    for (int i = 0; objects[i] != NULL; i++) {
+        free(objects[i]->data);
+        free(objects[i]);
+    }
+    free(objects);
+    fclose(f);
+}
+
+/**
  * Determine the color vector of the ray:
  * (currently makes the ray a blue-white gradient)
  */
 color ray_color(ray ray, object** objs) {
-    // check if the ray intersects a sphere:
-    for (int i = 0; objs[i] != NULL; i++) {
-        hit_record rec;
-        interval in = interval_create(0, infinity);
-        if (hit_func[objs[i]->type](ray, in, &rec, objs[i])) {
-            color c = vec3_create(1.0, 1.0, 1.0);
-            return vec3_scalar(vec3_add(rec.normal, c), 0.5);
-        }
+    // check if the ray intersects anything:
+    hit_record rec;
+    if (hit(ray, interval_create(0, infinity), &rec, objs)) {
+        color c = vec3_create(1.0, 1.0, 1.0);
+        return vec3_scalar(vec3_add(rec.normal, c), 0.5);
     }
 
     vec3 unit_dir = vec3_unit(ray.dir);

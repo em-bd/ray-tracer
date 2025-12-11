@@ -1,6 +1,28 @@
 #include "object.h"
 
 /**
+ * Take a list of objects and determine
+ */
+bool hit(ray r, interval in, hit_record* rec, object** objects) {
+    hit_record temp;
+    bool hit_anything = false;
+    double closest_so_far = in.max;
+
+    // iterate through object list to find the closest one:
+    for (int i = 0; objects[i] != NULL; i++) {
+        object* o = objects[i];
+        interval int1 = interval_create(in.min, closest_so_far);
+        if (hit_func[o->type](r, in, &temp, o)) {
+            hit_anything = true;
+            closest_so_far = temp.t;
+            *rec = temp;
+        }
+    }
+
+    return hit_anything;
+}
+
+/**
  * Determine if the ray hits the sphere:
  */
 bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
@@ -18,9 +40,9 @@ bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
 
     double root = (h - sqrtd) / a;
     // check if the root is in the acceptable range:
-    if (root <= i.min || i.max <= root) {
+    if (!surrounds(i, root)) {
         root = (h + sqrtd) / a;
-        if (root <= i.min || i.max <= root)
+        if (!surrounds(i, root))
             return false;
     }
 

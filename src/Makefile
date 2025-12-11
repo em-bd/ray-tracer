@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -O2
 
 #Source files
-SRC = main.c vectors.c texture-load.c ray.c color.c utils.c object.c camera.c
+SRC = main.c vectors.c texture-load.c ray.c color.c utils.c object.c camera.c parser.c
 OBJ = $(SRC:.c=.o)
 
 # Detect platform

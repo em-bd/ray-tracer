@@ -16,7 +16,12 @@ typedef struct {
     vec3 pixel_delta_v;
 } camera;
 
-void initialize(camera*);
+extern camera* c;
+extern object** objects;
+
+void initialize();
+
+void render();
 
 color ray_color(ray, object**);
 

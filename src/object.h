@@ -38,11 +38,12 @@ typedef struct {
 
 typedef struct {
     vec3 a, b, c;
-    vec3 ta, tb, tc;
     vec3 n;
 } triangle;
 
 typedef bool (*hit_fn)(ray, interval, hit_record*, object*);
+
+bool hit(ray, interval, hit_record*, object**);
 
 bool hit_sphere(ray, interval, hit_record*, object*);
 
