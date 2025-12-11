@@ -36,6 +36,7 @@ vec3 vec3_rand();
 vec3 vec3_random(interval);
 
 vec3 random_unit_vector();
+
 vec3 random_on_hemisphere(vec3);
 
 double vec3_length(vec3);

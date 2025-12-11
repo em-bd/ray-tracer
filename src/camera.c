@@ -103,11 +103,9 @@ color ray_color(ray ray, int depth, object** objs) {
         return vec3_create(0, 0, 0);
     // check if the ray intersects anything:
     hit_record rec;
-    if (hit(ray, interval_create(0, infinity), &rec, objs)) {
-        // color c = vec3_create(1.0, 1.0, 1.0);
-        // return vec3_scalar(vec3_add(rec.normal, c), 0.5);
-        vec3 direction = random_on_hemisphere(rec.normal);
-        return vec3_scalar(ray_color(ray_create(rec.p, direction), depth--, objects), 0.5);
+    if (hit(ray, interval_create(0.001, infinity), &rec, objs)) {
+        vec3 direction = vec3_add(rec.normal, random_unit_vector());
+        return vec3_scalar(ray_color(ray_create(rec.p, direction), --depth, objects), 0.1);
     }
 
     vec3 unit_dir = vec3_unit(ray.dir);
