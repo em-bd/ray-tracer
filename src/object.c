@@ -1,7 +1,7 @@
 #include "object.h"
 
 /**
- * Take a list of objects and determine
+ * Take a list of objects and determine which hits
  */
 bool hit(ray r, interval in, hit_record* rec, object** objects) {
     hit_record temp;
@@ -12,7 +12,7 @@ bool hit(ray r, interval in, hit_record* rec, object** objects) {
     for (int i = 0; objects[i] != NULL; i++) {
         object* o = objects[i];
         interval int1 = interval_create(in.min, closest_so_far);
-        if (hit_func[o->type](r, in, &temp, o)) {
+        if (hit_func[o->type](r, int1, &temp, o)) {
             hit_anything = true;
             closest_so_far = temp.t;
             *rec = temp;

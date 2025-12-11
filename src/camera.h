@@ -3,6 +3,8 @@
 
 #include "object.h"
 
+#define SAMPLES_PER_PIXEL 100
+
 /**
  * Camera data structure:
  */
@@ -14,6 +16,7 @@ typedef struct {
     point3 pixel00_loc;
     vec3 pixel_delta_u;
     vec3 pixel_delta_v;
+    double pixel_samples_scale;
 } camera;
 
 extern camera* c;

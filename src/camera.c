@@ -3,11 +3,38 @@
 camera* c = NULL;
 object** objects = NULL;
 
+vec3 sample_square() {
+    return vec3_create(rand_double() - 0.5, rand_double() - 0.5, 0);
+}
+
+/**
+ * Construct a camera ray originating from the origin and directed at a
+ * randomly sampled point around location i,j:
+ */
+ray get(int i, int j) {
+    vec3 offset = sample_square();
+    vec3 pixel_sample = vec3_add(
+        c->pixel00_loc,
+        vec3_add(
+            vec3_scalar(c->pixel_delta_u, ((double) i + offset.x)),
+            vec3_scalar(c->pixel_delta_v, ((double) j + offset.y))
+        )
+    );
+    
+    ray r;
+    r.orig = c->center;
+    r.dir = vec3_sub(pixel_sample, r.orig);
+
+    return r;
+}
+
 /**
  * Initialize the camera:
  */
 void initialize() {
     c = malloc(sizeof(camera));
+    c->pixel_samples_scale = 1.0 / ((double) SAMPLES_PER_PIXEL);
+
     c->aspect_ratio = 16.0 / 9.0;
     c->image_width = 400;
     c->image_height = (int) (c->image_width / c->aspect_ratio);
@@ -47,20 +74,25 @@ void render() {
 
         for (int j = 0; j < c->image_height; j++) {
             for (int i = 0; i < c->image_width; i++) {
-                // pixel center logic:
-                vec3 r1 = vec3_add(vec3_scalar(c->pixel_delta_u, (double) i), 
-                                    vec3_scalar(c->pixel_delta_v, (double) j));
-                point3 pixel_center = vec3_add(c->pixel00_loc, r1);
+                // // pixel center logic:
+                // vec3 r1 = vec3_add(vec3_scalar(c->pixel_delta_u, (double) i), 
+                //                     vec3_scalar(c->pixel_delta_v, (double) j));
+                // point3 pixel_center = vec3_add(c->pixel00_loc, r1);
 
-                // pixel color logic:
-                ray r;
-                r.dir = vec3_sub(pixel_center, c->center);
-                r.orig = c->center;
-                color pixel_color = ray_color(r, objects);
+                // // pixel color logic:
+                // ray r;
+                // r.dir = vec3_sub(pixel_center, c->center);
+                // r.orig = c->center;
+                // color pixel_color = ray_color(r, objects);
+                color pixel_color = vec3_create(0, 0, 0);
+                for (int s = 0; s < SAMPLES_PER_PIXEL; s++) {
+                    ray r = get(i, j);
+                    pixel_color = vec3_add(pixel_color, ray_color(r, objects));
+                }
 
                 // write to file:
                 char * restrict line = malloc(sizeof(char) * 20);
-                write_color(line, pixel_color);
+                write_color(line, vec3_scalar(pixel_color, c->pixel_samples_scale));
                 fprintf(f, "%s", line);
                 free(line);
             }

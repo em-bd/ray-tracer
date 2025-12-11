@@ -1,6 +1,29 @@
 #include "utils.h"
 
 /**
+ * Convert degrees to radians:
+ */
+double degrees_to_radians(double degrees) {
+    return degrees * pi / 180.0;
+}
+
+/**
+ * Finds a random real in [0,1):
+ */
+double rand_double() {
+    return rand() / (RAND_MAX + 1.0);
+}
+
+/**
+ * Finds a random double in [min,max):
+ */
+double random_double(interval i) {
+    return i.min + (i.max - i.min)*rand_double();
+}
+
+/*    INTERVALS       */
+
+/**
  * Interval creation:
  */
 interval interval_create(double min, double max) {
@@ -8,13 +31,6 @@ interval interval_create(double min, double max) {
     i.min = min;
     i.max = max;
     return i;
-}
-
-/**
- * Convert degrees to radians:
- */
-double degrees_to_radians(double degrees) {
-    return degrees * pi / 180.0;
 }
 
 /**
@@ -36,4 +52,13 @@ bool contains(interval i, double x) {
  */
 bool surrounds(interval i, double x) {
     return i.min < x && x < i.max;
+}
+
+/**
+ * Clamp helper function:
+ */
+double clamp(interval i, double x) {
+    if (x < i.min) return i.min;
+    if (x > i.max) return i.max;
+    return x;
 }

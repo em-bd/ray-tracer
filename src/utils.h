@@ -21,10 +21,16 @@ interval interval_create(double, double);
 
 double degrees_to_radians(double);
 
+double rand_double();
+
+double random_double(interval);
+
 double size(interval);
 
 bool contains(interval, double);
 
 bool surrounds(interval, double);
+
+double clamp(interval, double);
 
 #endif

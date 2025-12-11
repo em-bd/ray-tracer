@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "vectors.h"
+#include "utils.h"
 
 typedef vec3 color;
 
