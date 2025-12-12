@@ -1,5 +1,18 @@
 #include "material.h"
 
+/* local methods */
+
+/**
+ * Schlick's approximation for reflectance:
+ */
+double reflectance(double cosine, double refraction_index) {
+    double r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+    r0 = r0*r0;
+    return r0 + (1.0 - r0) * pow((1.0 - cosine), 5);
+}
+
+/* public methods */
+
 /**
  * Create a lambertian:
  */
@@ -70,9 +83,18 @@ bool dielectric_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
     double ri = rec.front_face ? (1.0 / d.refraction_index) : d.refraction_index;
 
     vec3 unit_dir = vec3_unit(r_in.dir);
-    vec3 refracted = refract(unit_dir, rec.normal, ri);
+    double cos_theta = fmin(vec3_dot(vec3_negative(unit_dir), rec.normal), 1.0);
+    double sin_theta = sqrt(1.0 - cos_theta*cos_theta);
 
-    *scattered = ray_create(rec.p, refracted);
+    bool cannot_refract = ri * sin_theta > 1.0;
+    vec3 dir;
+
+    if (cannot_refract || reflectance(cos_theta, ri) > rand_double())
+        dir = reflect(unit_dir, rec.normal);
+    else
+        dir = refract(unit_dir, rec.normal, ri);
+
+    *scattered = ray_create(rec.p, dir);
     return true;
 }
 

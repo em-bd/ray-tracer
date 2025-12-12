@@ -4,6 +4,9 @@
 #include "color.h"
 #include "ray.h"
 
+/**
+ * Scatter type enumeration structure:
+ */
 typedef enum {
     lambertian_type,
     metal_type,

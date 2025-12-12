@@ -1,6 +1,6 @@
 #include "parser.h"
 
-#define path "../Objects/objects.csv"
+#define path "../Assets/objects.csv"
 
 FILE* f = NULL;
 
@@ -106,6 +106,10 @@ void loadSphere(int i) {
         *s = sphere_create(vec3_create(x, y, z), r, loadDielectric());
     
     object* o = malloc(sizeof(object));
+    if (o == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
     o->data = s;
     o->type = sphere_obj;
     objects[i] = o;
@@ -126,11 +130,19 @@ void loadTriangle(int i) {
     double z2 = atof(strtok(NULL, ","));
 
     triangle* t = malloc(sizeof(triangle));
+    if (t == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
     t->a = vec3_create(x0, y0, z0);
     t->b = vec3_create(x1, y1, z1);
     t->c = vec3_create(x2, y2, z2);
 
     object* o = malloc(sizeof(object));
+    if (o == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
     o->data = t;
     o->type = triangle_obj;
     objects[i] = o;
@@ -163,6 +175,10 @@ void load() {
         if (i >= capacity) {
             capacity *= 2;
             objects = realloc(objects, sizeof(object*) * capacity);
+            if (objects == NULL) {
+                perror("Realloc error");
+                exit(1);
+            }
         }
 
         char* type = strtok(line, ",");
