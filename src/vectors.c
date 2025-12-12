@@ -66,6 +66,18 @@ vec3 vec3_unit(vec3 v) {
 }
 
 /**
+ * Generate a random point inside a unit disk:
+ */
+vec3 random_in_unit_disk() {
+    do {
+        interval i = interval_create(-1, 1);
+        vec3 p = vec3_create(random_double(i), random_double(i), 0);
+        if (length_sqd(p) < 1)
+            return p;
+    } while (1);
+}
+
+/**
  * Negative:
  */
 vec3 vec3_negative(vec3 v) {
