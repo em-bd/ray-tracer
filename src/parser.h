@@ -7,6 +7,8 @@
 
 #include "camera.h"
 
-void load();
+void load(const char*);
+
+extern char* paths[5];
 
 #endif

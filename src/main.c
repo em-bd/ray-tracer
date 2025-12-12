@@ -13,7 +13,7 @@ int main() {
     initialize();
 
     // Load objects
-    load();
+    load(paths[0]);
 
     // Render scene
     render();

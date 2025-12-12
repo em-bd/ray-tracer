@@ -39,20 +39,34 @@ void initialize() {
 
     c->center = vec3_create(0, 0, 0);
 
-    double focal_length = 1.0;
-    double viewport_height = 2.0;
+    // configurable camera variables:
+    c->lookfrom = vec3_create(0, 0, 0);     // point looking from
+    c->lookat = vec3_create(0, 0, -1.0);    // point looking at
+    c->vfov = 90;                           // field of view
+    c->vup = vec3_create(0, 1.0, 0);        // relative "up" direction
+
+    // viewport dimensions:
+    double focal_length = vec3_length(vec3_sub(c->lookfrom, c->lookat));
+    double theta = degrees_to_radians(c->vfov);
+    double h = tan(theta/2.0);
+    double viewport_height = 2.0 * h * focal_length;
     double viewport_width = viewport_height * ((double) c->image_width / (double) c->image_height);
 
-    // calculate the vectors across the horizontal and down the vertical viewport edges:
-    vec3 viewport_u = vec3_create(viewport_width, 0, 0);
-    vec3 viewport_v = vec3_create(0, -viewport_height, 0);
+    // unit basics vectors:
+    c->w = vec3_unit(vec3_sub(c->lookfrom, c->lookat));
+    c->u = vec3_unit(vec3_cross(c->vup, c->w));
+    c->v = vec3_cross(c->w, c->u);
 
-    // calculate horizontal and vertical delta vectors from pixel to pixel:
-    c->pixel_delta_u = vec3_scalar(viewport_u, (double) (1.0 / c->image_width));
-    c->pixel_delta_v = vec3_scalar(viewport_v, (double) (1.0 / c->image_height));
+    // viewport edge vectors:
+    vec3 viewport_u = vec3_scalar(c->u, viewport_width);
+    vec3 viewport_v = vec3_scalar(vec3_negative(c->v), viewport_height);
+
+    // horizontal and vertical delta vectors from pixel to pixel:
+    c->pixel_delta_u = vec3_scalar(viewport_u, (1.0 / c->image_width));
+    c->pixel_delta_v = vec3_scalar(viewport_v, (1.0 / c->image_height));
 
     // find location of upper left pixel of the viewport:
-    vec3 r1 = vec3_sub(c->center, vec3_create(0, 0, focal_length));
+    vec3 r1 = vec3_sub(c->center, vec3_scalar(c->w, focal_length));
 
     vec3 viewport_upper_left = vec3_sub(vec3_sub(r1, vec3_scalar(viewport_u, 0.5)),
                                     vec3_scalar(viewport_v, 0.5));

@@ -1,6 +1,15 @@
 #include "parser.h"
 
-#define path "../Assets/objects.csv"
+/**
+ * Array of all test scenes:
+ */
+char* paths[5] = {
+    "../Assets/scene1.csv",
+    "../Assets/scene2.csv",
+    "../Assets/scene3.csv",
+    "../Assets/scene4.csv",
+    "../Assets/scene5.csv",
+};
 
 FILE* f = NULL;
 
@@ -151,7 +160,7 @@ void loadTriangle(int i) {
 /**
  * Load all objects into the objects array from a CSV file:
  */
-void load() {
+void load(const char* path) {
     // open file and make sure it exists:
     f = fopen(path, "r");
     if (!f) {
