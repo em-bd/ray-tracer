@@ -16,18 +16,18 @@ double reflectance(double cosine, double refraction_index) {
 /**
  * Create a lambertian:
  */
-lambertian lambertian_create(double x, double y, double z) {
+lambertian lambertian_create(vec3 albedo) {
     lambertian l;
-    l.albedo = vec3_create(x, y, z);
+    l.albedo = albedo;
     return l;
 }
 
 /**
  * Create a metal:
  */
-metal metal_create(double x, double y, double z, double fuzz) {
+metal metal_create(color albedo, double fuzz) {
     metal m;
-    m.albedo = vec3_create(x, y, z);
+    m.albedo = albedo;
     m.fuzz = fuzz;
     return m;
 }
@@ -53,7 +53,7 @@ bool lambertian_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
     if (near_zero(scatter_dir))
         scatter_dir = rec.normal;
 
-    *scattered = ray_create(rec.p, scatter_dir);
+    *scattered = ray_create_time(rec.p, scatter_dir, r_in.tm);
     *attenuation = l.albedo;
     return true;
 }
@@ -65,7 +65,7 @@ bool metal_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered,
     metal m = *((metal*) mat->data);
     
     vec3 reflected = reflect(vec3_unit(r_in.dir), rec.normal);
-    *scattered = ray_create(rec.p, vec3_add(reflected, vec3_scalar(random_unit_vector(), m.fuzz)));
+    *scattered = ray_create_time(rec.p, vec3_add(reflected, vec3_scalar(random_unit_vector(), m.fuzz)), r_in.tm);
     *attenuation = m.albedo;
     return (vec3_dot(scattered->dir, rec.normal) > 0);
 }
@@ -91,7 +91,7 @@ bool dielectric_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
     else
         dir = refract(unit_dir, rec.normal, ri);
 
-    *scattered = ray_create(rec.p, dir);
+    *scattered = ray_create_time(rec.p, dir, r_in.tm);
     return true;
 }
 

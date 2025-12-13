@@ -5,7 +5,8 @@
  */
 bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
     sphere* s = (sphere *) o->data;
-    vec3 oc = vec3_sub(s->center, r.orig);
+    point3 current_center = at(s->center, r.tm);
+    vec3 oc = vec3_sub(current_center, r.orig);
     double a = length_sqd(r.dir);
     double h = vec3_dot(r.dir, oc);
     double c = length_sqd(oc) - s->radius * s->radius;
@@ -27,7 +28,7 @@ bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
     // update hit record:
     rec->t = root;
     rec->p = at(r, rec->t);
-    vec3 outward_normal = vec3_scalar(vec3_sub(rec->p, s->center), (1.0 / s->radius));
+    vec3 outward_normal = vec3_scalar(vec3_sub(rec->p, current_center), (1.0 / s->radius));
     set_face_normal(r, outward_normal, rec);
     rec->mat = ((sphere*) o->data)->mat;
 
@@ -92,7 +93,7 @@ void set_face_normal(ray r, vec3 outward_normal, hit_record* rec) {
 void sphere_box(object* o) {
     sphere* s = (sphere*) o->data;
     vec3 rvec = vec3_create(s->radius, s->radius, s->radius);
-    o->bbox = aabb_points(vec3_sub(s->center, rvec), vec3_add(s->center, rvec));
+    o->bbox = aabb_points(vec3_sub(s->center.orig, rvec), vec3_add(s->center.orig, rvec));
 }
 
 // /**
@@ -187,10 +188,23 @@ object* sphere_create(vec3 center, double radius, material* mat) {
         perror("Malloc error.");
         exit(1);
     }
-    s->center = center;
+    s->center = ray_create(center, vec3_create(0, 0, 0));
     s->radius = radius;
     s->mat = mat;
     
+    return object_create(sphere_obj, s);
+}
+
+object* moving_sphere_create(point3 center1, point3 center2, double radius, material* mat) {
+    sphere* s = malloc(sizeof(sphere));
+    if (s == NULL) {
+        perror("Malloc error");
+        exit(1);
+    }
+    s->center = ray_create(center1, vec3_sub(center2, center1));
+    s->radius = radius;
+    s->mat = mat;
+
     return object_create(sphere_obj, s);
 }
 

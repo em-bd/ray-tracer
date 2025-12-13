@@ -56,9 +56,9 @@ typedef struct {
 
 typedef bool (*scatter_fn)(ray, hit_record, color*, ray*, material*);
 
-lambertian lambertian_create(double, double, double);
+lambertian lambertian_create(vec3);
 
-metal metal_create(double, double, double, double);
+metal metal_create(color, double);
 
 dielectric dielectric_create(double);
 

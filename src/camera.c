@@ -30,8 +30,9 @@ ray get(int i, int j) {
     );
 
     point3 orig = (c->defocus_angle <= 0) ? c->center : defocus_disk_sample();
+    double time = rand_double();
 
-    return ray_create(orig, vec3_sub(pixel_sample, orig));
+    return ray_create_time(orig, vec3_sub(pixel_sample, orig), time);
 }
 
 /**
@@ -43,19 +44,20 @@ void initialize() {
     c->max_depth = 50;
 
     c->aspect_ratio = 16.0 / 9.0;
-    c->image_width = 400;
+    c->image_width = 1200;
     c->image_height = (int) (c->image_width / c->aspect_ratio);
     c->image_height = (c->image_height < 1) ? 1 : c->image_height;
 
     // configurable camera variables:
-    c->center = c->lookfrom = vec3_create(0, 0, 0);       // point looking from and camera center
-    c->lookat = vec3_create(0, 0, -1.0);                    // point looking at
-    c->vfov = 90;                                           // field of view
+    c->center = c->lookfrom = vec3_create(13, 2, 3);       // point looking from and camera center
+    c->lookat = vec3_create(0, 0, 0);                    // point looking at
+    c->vfov = 20;                                           // field of view
     c->vup = vec3_create(0, 1.0, 0);                        // relative "up" direction
 
     // viewport dimensions:
-    c->defocus_angle = 3;
-    c->focus_dist = vec3_length(vec3_sub(c->lookfrom, c->lookat));
+    c->defocus_angle = 0.6;
+    // c->focus_dist = vec3_length(vec3_sub(c->lookfrom, c->lookat));
+    c->focus_dist = 10;
     double theta = degrees_to_radians(c->vfov);
     double h = tan(theta/2.0);
     double viewport_height = 2.0 * h * c->focus_dist;

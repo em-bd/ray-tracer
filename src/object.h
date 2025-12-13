@@ -37,7 +37,7 @@ typedef struct {
  * Sphere data structure:
  */
 typedef struct {
-    point3 center;
+    ray center;
     double radius;
     material* mat;
 } sphere;
@@ -54,6 +54,8 @@ extern hit_fn hit_func[3];
 void set_face_normal(ray, vec3, hit_record*);
 
 object* object_create(obj_type, void*);
+
+object* moving_sphere_create(point3, point3, double, material*);
 
 object* sphere_create(vec3, double, material*);
 
