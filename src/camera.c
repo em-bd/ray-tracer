@@ -1,7 +1,7 @@
 #include "camera.h"
 
 camera* c = NULL;
-object** objects = NULL;
+object* world = NULL;
 
 vec3 sample_square() {
     return vec3_create(rand_double() - 0.5, rand_double() - 0.5, 0);
@@ -48,7 +48,7 @@ void initialize() {
     c->image_height = (c->image_height < 1) ? 1 : c->image_height;
 
     // configurable camera variables:
-    c->center = c->lookfrom = vec3_create(-2, 2, 1);       // point looking from and camera center
+    c->center = c->lookfrom = vec3_create(0, 0, 0);       // point looking from and camera center
     c->lookat = vec3_create(0, 0, -1.0);                    // point looking at
     c->vfov = 90;                                           // field of view
     c->vup = vec3_create(0, 1.0, 0);                        // relative "up" direction
@@ -87,6 +87,12 @@ void initialize() {
     double defocus_radius = c->focus_dist * tan(degrees_to_radians(c->defocus_angle / 2.0));
     c->defocus_disk_u = vec3_scalar(c->u, defocus_radius);
     c->defocus_disk_v = vec3_scalar(c->v, defocus_radius);
+
+    // empty and universe intervals and aabbs:
+    empty = interval_create(INFINITY, -INFINITY);
+    empty_aabb = aabb_create(empty, empty, empty);
+    universe = interval_create(-INFINITY, INFINITY);
+    universe_aabb = aabb_create(universe, universe, universe);
 }
 
 /**
@@ -96,14 +102,14 @@ void render() {
     FILE *f;
     f = fopen("image.ppm", "wb");
     fprintf(f, "P3\n%d\n%d\n255\n", c->image_width, c->image_height);
-
+        printf("Starting render.\n");
         for (int j = 0; j < c->image_height; j++) {
             for (int i = 0; i < c->image_width; i++) {
                 // pixel color with sampling:
                 color pixel_color = vec3_create(0, 0, 0);
                 for (int s = 0; s < SAMPLES_PER_PIXEL; s++) {
                     ray r = get(i, j);
-                    pixel_color = vec3_add(pixel_color, ray_color(r, c->max_depth, objects));
+                    pixel_color = vec3_add(pixel_color, ray_color(r, c->max_depth));
                 }
 
                 // write to file:
@@ -113,31 +119,29 @@ void render() {
                 free(line);
             }
         }
-    for (int i = 0; objects[i] != NULL; i++) {
-        free(objects[i]->data);
-        free(objects[i]);
-    }
-    free(objects);
+    printf("Render completed.\n");
+    free_objects(world);
+    free(c);
+    printf("Free completed.\n");
     fclose(f);
+    printf("file closed.\n");
 }
 
 /**
  * Determine the color vector of the ray:
  * (currently makes the ray a blue-white gradient)
  */
-color ray_color(ray r, int depth, object** objs) {
+color ray_color(ray r, int depth) {
     // if we've exceeded the ray bounce limit, no more light is gathered:
     if (depth <= 0)
         return vec3_create(0, 0, 0);
     // check if the ray intersects anything:
     hit_record rec;
-    if (hit(r, interval_create(0.001, infinity), &rec, objs)) {
-        // vec3 direction = vec3_add(rec.normal, random_unit_vector());
-        // return vec3_scalar(ray_color(ray_create(rec.p, direction), --depth, objects), 0.1);
+    if (hit_func[world->type](r, interval_create(0.001, infinity), &rec, world)) {
         ray scattered;
         color attenuation;
         if (scatter_func[rec.mat->type](r, rec, &attenuation, &scattered, rec.mat))
-            return vec3_mul(ray_color(scattered, --depth, objects), attenuation);
+            return vec3_mul(ray_color(scattered, depth - 1), attenuation);
         return vec3_create(0, 0, 0);
     }
 

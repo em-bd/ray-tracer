@@ -20,3 +20,10 @@ double rand_double() {
 double random_double(interval i) {
     return i.min + (i.max - i.min)*rand_double();
 }
+
+/**
+ * Finds a random int in [min, max]
+ */
+int random_int(int a, int b) {
+    return (int) random_double(interval_create(a, b + 1));
+}

@@ -1,5 +1,7 @@
 #include "parser.h"
 
+object** objects = NULL;
+
 /**
  * Array of all test scenes:
  */
@@ -99,29 +101,13 @@ void loadSphere(int i) {
     double z = atof(strtok(NULL, ","));
     double r = atof(strtok(NULL, ","));
 
-    // allocate:
-    sphere* s = malloc(sizeof(sphere));
-    if (s == NULL) {
-        perror("malloc error");
-        exit(1);
-    }
-
     char* mat = strtok(NULL, ",");
     if (strcmp(mat, "metal") == 0)
-        *s = sphere_create(vec3_create(x, y, z), r, loadMetal());
+        objects[i] = sphere_create(vec3_create(x, y, z), r, loadMetal());
     else if (strcmp(mat, "lambertian") == 0)
-        *s = sphere_create(vec3_create(x, y, z), r, loadLambertian());
+        objects[i] = sphere_create(vec3_create(x, y, z), r, loadLambertian());
     else if (strcmp(mat, "dielectric") == 0)
-        *s = sphere_create(vec3_create(x, y, z), r, loadDielectric());
-    
-    object* o = malloc(sizeof(object));
-    if (o == NULL) {
-        perror("Malloc error");
-        exit(1);
-    }
-    o->data = s;
-    o->type = sphere_obj;
-    objects[i] = o;
+        objects[i] = sphere_create(vec3_create(x, y, z), r, loadDielectric());
 }
 
 /**
@@ -160,7 +146,7 @@ void loadTriangle(int i) {
 /**
  * Load all objects into the objects array from a CSV file:
  */
-void load(const char* path) {
+object** load(const char* path) {
     // open file and make sure it exists:
     f = fopen(path, "r");
     if (!f) {
@@ -204,4 +190,5 @@ void load(const char* path) {
 
     // null terminate the objects array:
     objects[i] = NULL;
+    return objects;
 }

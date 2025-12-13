@@ -7,7 +7,7 @@
 
 #include "camera.h"
 
-void load(const char*);
+object** load(const char*);
 
 extern char* paths[5];
 

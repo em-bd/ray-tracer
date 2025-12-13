@@ -10,7 +10,13 @@ typedef struct {
     double max;
 } interval;
 
+extern interval empty, universe;
+
 interval interval_create(double, double);
+
+interval interval_from_intervals(interval, interval);
+
+interval expand(interval, double);
 
 double size(interval);
 

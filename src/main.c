@@ -13,13 +13,14 @@ int main() {
     initialize();
 
     // Load objects
-    load(paths[0]);
+    object** objs = load(paths[0]);
+    int i = 0;
+    while (objs[i] != NULL) ++i;
+    world = build_bvh(objs, 0, i);
 
     // Render scene
     render();
 
-    if (c != NULL)
-        free(c);
-
+    printf("Done!\n");
     return 0;
 }

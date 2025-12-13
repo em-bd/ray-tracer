@@ -30,12 +30,12 @@ typedef struct {
 } camera;
 
 extern camera* c;
-extern object** objects;
+extern object* world;
 
 void initialize();
 
 void render();
 
-color ray_color(ray, int, object**);
+color ray_color(ray, int);
 
 #endif

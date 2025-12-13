@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "interval.h"
+#include "aabb.h"
 #include "material.h"
 
 /**
@@ -12,6 +12,7 @@
 typedef enum {
     sphere_obj,
     triangle_obj,
+    bvh_node_obj,
 } obj_type;
 
 /**
@@ -20,8 +21,21 @@ typedef enum {
 typedef struct {
     void* data;
     obj_type type;
+    aabb bbox;
 } object;
 
+/**
+ * Bounding Volume Hierarchy Node data structure:
+ */
+typedef struct {
+    object* left;
+    object* right;
+    aabb bbox;
+} bvh_node;
+
+/**
+ * Sphere data structure:
+ */
 typedef struct {
     point3 center;
     double radius;
@@ -35,16 +49,18 @@ typedef struct {
 
 typedef bool (*hit_fn)(ray, interval, hit_record*, object*);
 
-bool hit(ray, interval, hit_record*, object**);
-
-bool hit_sphere(ray, interval, hit_record*, object*);
-
-bool hit_triangle(ray, interval, hit_record*, object*);
-
-extern hit_fn hit_func[2];
+extern hit_fn hit_func[3];
 
 void set_face_normal(ray, vec3, hit_record*);
 
-sphere sphere_create(vec3, double, material*);
+object* object_create(obj_type, void*);
+
+object* sphere_create(vec3, double, material*);
+
+bvh_node bvh_node_create(object*, object*);
+
+object* build_bvh(object**, size_t, size_t);
+
+void free_objects(object*);
 
 #endif

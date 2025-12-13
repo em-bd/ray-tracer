@@ -15,4 +15,6 @@ double rand_double();
 
 double random_double(interval);
 
+int random_int(int, int);
+
 #endif
