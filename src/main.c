@@ -20,8 +20,8 @@ void random_generate() {
     m->data = ground;
     objects[i++] = sphere_create(vec3_create(0, -1000, 0), 1000, m);
 
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    for (int a = -5; a < 5; a++) {
+        for (int b = -5; b < 5; b++) {
             // reallocate objects
             if (i >= capacity) {
                 capacity *= 2;
@@ -91,6 +91,7 @@ int main() {
 
     // Load objects
     printf("Generating objects\n");
+    // objects = load(paths[0]);
     random_generate();
     printf("Done generating.\n");
     int i = 0;

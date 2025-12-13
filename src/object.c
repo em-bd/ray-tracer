@@ -71,7 +71,8 @@ bool hit_bvh(ray r, interval i, hit_record* rec, object* o) {
 /**
  * Hit function array declaration:
  */
-hit_fn hit_func[3] = {
+hit_fn hit_func[4] = {
+    hit_sphere,
     hit_sphere,
     hit_triangle,
     hit_bvh,
@@ -96,6 +97,21 @@ void sphere_box(object* o) {
     o->bbox = aabb_points(vec3_sub(s->center.orig, rvec), vec3_add(s->center.orig, rvec));
 }
 
+/**
+ * Calculates the bbox for a moving sphere:
+ */
+void moving_sphere_box(object* o) {
+    sphere* s = (sphere*) o->data;
+    vec3 center0 = at(s->center, 0);
+    vec3 center1 = at(s->center, 1);
+    vec3 r = vec3_create(s->radius, s->radius, s->radius);
+
+    aabb box0 = aabb_points(vec3_sub(center0, r), vec3_add(center0, r));
+    aabb box1 = aabb_points(vec3_sub(center1, r), vec3_add(center1, r));
+
+    o->bbox = aabb_from_aabbs(box0, box1);
+}
+
 // /**
 //  * Triangle bounding box function
 //  */
@@ -106,6 +122,7 @@ void sphere_box(object* o) {
 typedef void (*aabb_fn)(object*);
 aabb_fn aabb_func[2] = {
     sphere_box,
+    moving_sphere_box,
     // triangle_box,
 };
 
@@ -205,7 +222,7 @@ object* moving_sphere_create(point3 center1, point3 center2, double radius, mate
     s->radius = radius;
     s->mat = mat;
 
-    return object_create(sphere_obj, s);
+    return object_create(moving_sphere_obj, s);
 }
 
 /**
@@ -269,6 +286,7 @@ void free_objects(object* o) {
 
     switch (o->type) {
         case sphere_obj:
+        case moving_sphere_obj:
             if (o->data != NULL) {
                 if (((sphere*) o->data)->mat != NULL)
                     free(((sphere*) o->data)->mat);

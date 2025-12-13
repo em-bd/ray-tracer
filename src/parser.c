@@ -1,7 +1,5 @@
 #include "parser.h"
 
-object** objects = NULL;
-
 /**
  * Array of all test scenes:
  */
@@ -35,7 +33,7 @@ material* loadMetal() {
     double z = atof(strtok(NULL, ","));
     double fuzz = atof(strtok(NULL, ","));
 
-    *m = metal_create(x, y, z, fuzz);
+    *m = metal_create(vec3_create(x, y, z), fuzz);
     mat->data = m;
     mat->type = metal_type;
 
@@ -61,7 +59,7 @@ material* loadLambertian() {
     double y = atof(strtok(NULL, ","));
     double z = atof(strtok(NULL, ","));
 
-    *l = lambertian_create(x, y, z);
+    *l = lambertian_create(vec3_create(x, y, z));
     mat->data = l;
     mat->type = lambertian_type;
 

@@ -11,4 +11,6 @@ object** load(const char*);
 
 extern char* paths[5];
 
+extern object** objects;
+
 #endif

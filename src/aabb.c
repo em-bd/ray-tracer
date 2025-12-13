@@ -41,8 +41,8 @@ aabb aabb_from_aabbs(aabb a, aabb b) {
  */
 interval axis_interval(aabb a, int n) {
     if (n == 1) return a.y;
-    if (n == 0) return a.z;
-    return a.x;
+    if (n == 0) return a.x;
+    return a.z;
 }
 
 // HELPER FUNCTIONS
@@ -81,7 +81,7 @@ bool aabb_hit(ray r, interval i, aabb a) {
         if (tmin > i.min) i.min = tmin;
         if (tmax < i.max) i.max = tmax;
 
-        if (i.max < i.min)
+        if (i.max <= i.min)
             return false;
     }
 

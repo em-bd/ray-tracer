@@ -11,6 +11,7 @@
  */
 typedef enum {
     sphere_obj,
+    moving_sphere_obj,
     triangle_obj,
     bvh_node_obj,
 } obj_type;
@@ -49,7 +50,7 @@ typedef struct {
 
 typedef bool (*hit_fn)(ray, interval, hit_record*, object*);
 
-extern hit_fn hit_func[3];
+extern hit_fn hit_func[4];
 
 void set_face_normal(ray, vec3, hit_record*);
 

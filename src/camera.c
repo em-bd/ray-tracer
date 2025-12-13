@@ -44,7 +44,7 @@ void initialize() {
     c->max_depth = 50;
 
     c->aspect_ratio = 16.0 / 9.0;
-    c->image_width = 1200;
+    c->image_width = 400;
     c->image_height = (int) (c->image_width / c->aspect_ratio);
     c->image_height = (c->image_height < 1) ? 1 : c->image_height;
 
