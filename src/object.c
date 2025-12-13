@@ -1,27 +1,5 @@
 #include "object.h"
 
-// /**
-//  * Take a list of objects and determine which hits
-//  */
-// bool hit(ray r, interval in, hit_record* rec, object* objects) {
-//     hit_record temp;
-//     bool hit_anything = false;
-//     double closest_so_far = in.max;
-
-//     // iterate through object list to find the closest one:
-//     for (int i = 0; objects[i] != NULL; i++) {
-//         object* o = objects[i];
-//         interval int1 = interval_create(in.min, closest_so_far);
-//         if (hit_func[o->type](r, int1, &temp, o)) {
-//             hit_anything = true;
-//             closest_so_far = temp.t;
-//             *rec = temp;
-//         }
-//     }
-
-//     return hit_anything;
-// }
-
 /**
  * Determine if the ray hits the sphere:
  */
@@ -75,7 +53,9 @@ bool hit_bvh(ray r, interval i, hit_record* rec, object* o) {
         return false;
 
     bool hit_left = bvh->left && hit_func[bvh->left->type](r, i, &left_rec, bvh->left);
-    bool hit_right = bvh->right && hit_func[bvh->right->type](r, interval_create(i.min, (hit_left ? left_rec.t : i.max)), &right_rec, bvh->right);
+    interval right_range = i;
+    if (hit_left) right_range.max = left_rec.t;
+    bool hit_right = bvh->right && hit_func[bvh->right->type](r, right_range, &right_rec, bvh->right);
 
     if (hit_left && hit_right)
         *rec = (right_rec.t < left_rec.t) ? right_rec : left_rec;
@@ -129,24 +109,59 @@ aabb_fn aabb_func[2] = {
 };
 
 // comparator functions:
-int box_x_compare(const void* a, const void* b) {
-    return (*((object**) a))->bbox.x.min < (*((object**) b))->bbox.x.min ? -1 : ((*((object**) a))->bbox.x.min > (*((object**) b))->bbox.x.min ? 1 : 0);
+int box_x_compare(const object* a, const object* b) {
+    return a->bbox.x.min < b->bbox.x.min ? -1 : (a->bbox.x.min > b->bbox.x.min ? 1 : 0);
 }
 
-int box_y_compare(const void* a, const void* b) {
-    return (*((object**) a))->bbox.y.min < (*((object**) b))->bbox.y.min ? -1 : ((*((object**) a))->bbox.y.min > (*((object**) b))->bbox.y.min ? 1 : 0);
+int box_y_compare(const object* a, const object* b) {
+    return a->bbox.y.min < b->bbox.y.min ? -1 : (a->bbox.y.min > b->bbox.y.min ? 1 : 0);
 }
 
-int box_z_compare(const void* a, const void* b) {
-    return (*((object**) a))->bbox.z.min < (*((object**) b))->bbox.z.min ? -1 : ((*((object**) a))->bbox.z.min > (*((object**) b))->bbox.z.min ? 1 : 0);
+int box_z_compare(const object* a, const object* b) {
+    return a->bbox.z.min < b->bbox.z.min ? -1 : (a->bbox.z.min > b->bbox.z.min ? 1 : 0);
 }
 
-typedef int (*cmp_fn)(const void*, const void*);
+typedef int (*cmp_fn)(const object*, const object*);
 cmp_fn comp_fn[3] = {
     box_x_compare,
     box_y_compare,
     box_z_compare,
 };
+
+void merge(object** objs, size_t left, size_t mid, size_t right, cmp_fn comp) {
+    size_t n1 = mid - left + 1;
+    size_t n2 = right - mid;
+
+    object** L = malloc(sizeof(object*) * n1);
+    object** R = malloc(sizeof(object*) * n2);
+
+    for (size_t i = 0; i < n1; i++) L[i] = objs[left + i];
+    for (size_t j = 0; j < n2; j++) R[j] = objs[mid + 1 + j];
+
+    size_t i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        if(comp(L[i], R[j]) <= 0)
+            objs[k++] = L[i++];
+        else
+            objs[k++] = R[j++];
+    }
+
+    // add the rest in:
+    while (i < n1) objs[k++] = L[i++];
+    while (j < n2) objs[k++] = R[j++];
+
+    free(L);
+    free(R);
+}
+
+void stable_mergesort(object** objs, size_t left, size_t right, cmp_fn comp) {
+    if (left < right) {
+        size_t mid = left + (right - left) / 2;
+        stable_mergesort(objs, left, mid, comp);
+        stable_mergesort(objs, mid + 1, right, comp);
+        merge(objs, left, mid, right, comp);
+    }
+}
 
 // CREATION FUNCTIONS
 
@@ -205,7 +220,7 @@ object* build_bvh(object** objs, size_t start, size_t end) {
     object* left;
     object* right;
 
-    qsort(objs + start, object_span, sizeof(object*), comp_fn[axis]);
+    stable_mergesort(objs + start, 0, object_span - 1, comp_fn[axis]);
 
     size_t mid = start + object_span / 2;
     left = build_bvh(objs, start, mid);

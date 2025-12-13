@@ -60,26 +60,28 @@ double vec3_coord(vec3 v, int n) {
  * Determining a hit:
  */
 bool aabb_hit(ray r, interval i, aabb a) {
-    point3 orig = r.orig;
-    point3 dir = r.dir;
-
     for (int axis = 0; axis < 3; axis++) {
         interval ax = axis_interval(a, axis);
-        double adinv = 1.0 / vec3_coord(dir, axis);
 
-        double t0 = (ax.min - vec3_coord(orig, axis)) * adinv;
-        double t1 = (ax.max - vec3_coord(orig, axis)) * adinv;
-
-        if (t0 < t1) {
-            if (t0 > i.min) i.min = t0;
-            if (t1 < i.max) i.max = t1;
-        }
-        else {
-            if (t1 > i.min) i.min = t1;
-            if (t0 < i.max) i.max = t0;
+        double dir_comp = vec3_coord(r.dir, axis);
+        if (fabs(dir_comp) < 1e-12) {
+            double orig_comp = vec3_coord(r.orig, axis);
+            if (orig_comp < ax.min || orig_comp > ax.max)
+                return false;
+            continue;
         }
 
-        if (i.max <= i.min)
+        double adinv = 1.0 / dir_comp;
+        double t0 = (ax.min - vec3_coord(r.orig, axis)) * adinv;
+        double t1 = (ax.max - vec3_coord(r.orig, axis)) * adinv;
+
+        double tmin = fmin(t0, t1);
+        double tmax = fmax(t0, t1);
+
+        if (tmin > i.min) i.min = tmin;
+        if (tmax < i.max) i.max = tmax;
+
+        if (i.max < i.min)
             return false;
     }
 

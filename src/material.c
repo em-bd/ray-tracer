@@ -64,11 +64,8 @@ bool lambertian_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
 bool metal_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered, material* mat) {
     metal m = *((metal*) mat->data);
     
-    vec3 reflected = reflect(r_in.dir, rec.normal);
-    // account for "fuzzy" metals:
-    reflected = vec3_add(vec3_unit(reflected), (vec3_scalar(random_unit_vector(), m.fuzz)));
-
-    *scattered = ray_create(rec.p, reflected);
+    vec3 reflected = reflect(vec3_unit(r_in.dir), rec.normal);
+    *scattered = ray_create(rec.p, vec3_add(reflected, vec3_scalar(random_unit_vector(), m.fuzz)));
     *attenuation = m.albedo;
     return (vec3_dot(scattered->dir, rec.normal) > 0);
 }
