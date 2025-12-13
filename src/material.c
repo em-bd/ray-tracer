@@ -14,38 +14,64 @@ double reflectance(double cosine, double refraction_index) {
 /* public methods */
 
 /**
+ * Create a material:
+ */
+material* material_create(scatter_type type, void* data) {
+    material* m = malloc(sizeof(material));
+    if (m == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
+    m->type = type;
+    m->data = data;
+    return m;
+}
+
+/**
  * Create a lambertian:
  */
-lambertian lambertian_create(vec3 albedo) {
-    lambertian l;
-    l.albedo = albedo;
-    return l;
+material* lambertian_create(texture* tex) {
+    lambertian* l = malloc(sizeof(lambertian));
+    if (l == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
+    l->tex = tex;
+    return material_create(lambertian_type, l);
 }
 
 /**
  * Create a metal:
  */
-metal metal_create(color albedo, double fuzz) {
-    metal m;
-    m.albedo = albedo;
-    m.fuzz = fuzz;
-    return m;
+material* metal_create(color albedo, double fuzz) {
+    metal* m = malloc(sizeof(metal));
+    if (m == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
+    m->albedo = albedo;
+    m->fuzz = fuzz;
+    return material_create(metal_type, m);
 }
 
 /**
  * Create a dielectric:
  */
-dielectric dielectric_create(double refraction_index) {
-    dielectric d;
-    d.refraction_index = refraction_index;
-    return d;
+material* dielectric_create(double refraction_index) {
+    dielectric* d = malloc(sizeof(dielectric));
+    if (d == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
+    d->refraction_index = refraction_index;
+    return material_create(dielectric_type, d);
 }
 
 /**
  * Scatter for a lambertian:
  */
 bool lambertian_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered, material* mat) {
-    lambertian l = *((lambertian*) mat->data);
+    lambertian* l = ((lambertian*) mat->data);
     
     vec3 scatter_dir = vec3_add(rec.normal, random_unit_vector());
 
@@ -54,7 +80,7 @@ bool lambertian_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
         scatter_dir = rec.normal;
 
     *scattered = ray_create_time(rec.p, scatter_dir, r_in.tm);
-    *attenuation = l.albedo;
+    *attenuation = value_func[l->tex->type](l->tex, rec.u, rec.v, rec.p);
     return true;
 }
 

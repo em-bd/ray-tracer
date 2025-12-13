@@ -3,6 +3,7 @@
 
 #include "color.h"
 #include "ray.h"
+#include "texture.h"
 
 /**
  * Scatter type enumeration structure:
@@ -25,7 +26,7 @@ typedef struct {
  * Lambertian data structure:
  */
 typedef struct {
-    color albedo;
+    texture* tex;
 } lambertian;
 
 /**
@@ -51,16 +52,20 @@ typedef struct {
     vec3 normal;
     double t;
     bool front_face;
+    double u;
+    double v;
     material* mat;
 } hit_record;
 
 typedef bool (*scatter_fn)(ray, hit_record, color*, ray*, material*);
 
-lambertian lambertian_create(vec3);
+material* material_create(scatter_type, void*);
 
-metal metal_create(color, double);
+material* lambertian_create(texture*);
 
-dielectric dielectric_create(double);
+material* metal_create(color, double);
+
+material* dielectric_create(double);
 
 bool lambertian_scatter(ray, hit_record, color*, ray*, material*);
 

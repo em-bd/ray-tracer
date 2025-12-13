@@ -3,7 +3,6 @@
 #include <time.h>
 
 #include "parser.h"
-#include "texture-load.h"
 
 #define frand() (rand() / (RAND_MAX + 1.0))
 
@@ -13,15 +12,16 @@ object** objects = NULL;
 void random_generate() {
     int capacity = 10, i = 0;
     objects = malloc(sizeof(object*) * capacity);
-    lambertian* ground = malloc(sizeof(lambertian));
-    *ground = lambertian_create(vec3_create(0.5, 0.5, 0.5));
-    material* m = malloc(sizeof(material));
-    m->type = lambertian_type;
-    m->data = ground;
-    objects[i++] = sphere_create(vec3_create(0, -1000, 0), 1000, m);
+    if (objects == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
+    texture* tex = checkered_create_from_solids(0.32, vec3_create(0.2, 0.3, .1), vec3_create(.9, .9, .9));
+    material* ground = lambertian_create(tex);
+    objects[i++] = sphere_create(vec3_create(0, -1000, 0), 1000, ground);
 
-    for (int a = -5; a < 5; a++) {
-        for (int b = -5; b < 5; b++) {
+    for (int a = -11; a < 11; a++) {
+        for (int b = -11; b < 11; b++) {
             // reallocate objects
             if (i >= capacity) {
                 capacity *= 2;
@@ -40,42 +40,24 @@ void random_generate() {
                     perror("Malloc error.");
                     exit(1);
                 }
-
                 // diffuse
                 if (choose_mat < 0.8) {
-                    mat->type = lambertian_type;
-                    mat->data = malloc(sizeof(lambertian));
-                    if (mat->data == NULL) {
-                        perror("Malloc error.");
-                        exit(1);
-                    }
                     color albedo = vec3_mul(vec3_rand(), vec3_rand());
-                    *((lambertian*) mat->data) = lambertian_create(albedo);
+                    texture* t = solid_create(albedo.x, albedo.y, albedo.z);
+                    mat = lambertian_create(t);
                     point3 center2 = vec3_add(center, vec3_create(0, random_double(interval_create(0, 0.5)), 0));
                     objects[i++] = moving_sphere_create(center, center2, 0.2, mat);
                 }
                 // metal
                 else if (choose_mat < 0.95) {
-                    mat->type = metal_type;
-                    mat->data = malloc(sizeof(metal));
-                    if (mat->data == NULL) {
-                        perror("Malloc error.");
-                        exit(1);
-                    }
                     color albedo = vec3_random(interval_create(0.5, 1));
                     double fuzz = random_double(interval_create(0, 0.5));
-                    *((metal*) mat->data) = metal_create(albedo, fuzz);
+                    mat = metal_create(albedo, fuzz);
                     objects[i++] = sphere_create(center, 0.2, mat);
                 }
                 // dielectric
                 else {
-                    mat->type = dielectric_type;
-                    mat->data = malloc(sizeof(dielectric));
-                    if (mat->data == NULL) {
-                        perror("Malloc error.");
-                        exit(1);
-                    }
-                    *((dielectric*) mat->data) = dielectric_create(1.5);
+                    mat = dielectric_create(1.5);
                     objects[i++] = sphere_create(center, 0.2, mat);
                 }
             }
