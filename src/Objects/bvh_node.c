@@ -163,7 +163,6 @@ bvh_node* bvh_node_create(object* left, object* right) {
     return node;
 }
 
-
 /**
  * Build the Bounding Volume Hierarchy:
  */

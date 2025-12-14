@@ -2,12 +2,12 @@
 
 // PRIVATE FUNCTIONS
 
-void get_sphere_uv(point3 p, double u, double v) {
+void get_sphere_uv(point3 p, double* u, double* v) {
     double theta = acos(-p.y);
     double phi = atan2(-p.z, p.x) + pi;
 
-    u = phi / (2 * pi);
-    v = theta / pi;
+    *u = phi / (2 * pi);
+    *v = theta / pi;
 }
 
 /**
@@ -48,7 +48,7 @@ bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
     rec->p = at(r, rec->t);
     vec3 outward_normal = vec3_scalar(vec3_sub(rec->p, current_center), (1.0 / s->radius));
     set_face_normal(r, outward_normal, rec);
-    get_sphere_uv(outward_normal, rec->u, rec->v);
+    get_sphere_uv(outward_normal, &rec->u, &rec->v);
     rec->mat = ((sphere*) o->data)->mat;
 
     return true;

@@ -93,7 +93,12 @@ void world_sphere() {
     scene_init();
 
     // globe:
-    texture* tex = texture_create(image_tex, image_create("earthmap.jpg"));
+    image* img = image_create("Tx_AI_grass_dirt_01.png");
+    if (img == NULL) {
+        fprintf(stderr, "Failed to load earthmap.\n");
+        return;
+    }
+    texture* tex = texture_create(image_tex, img);
     material* mat = material_create(lambertian_type, lambertian_create(tex));
     objects[0] = object_create(sphere_obj, sphere_create(vec3_create(0, 0, 0), 2, mat));
 }

@@ -11,6 +11,9 @@ image* image_create(const char* path) {
     }
 
     i->image = rtw_image_create(path);
-    
+    if (!i) {
+        free(i);
+        return NULL;
+    }
     return i;
 }

@@ -30,13 +30,17 @@ unsigned char float_to_byte(float value) {
  * Store resulting byte data
  */
 void convert_to_bytes(rtw_image* img) {
-    int total_bytes = img->image_width * img->image_height * img->bytes_per_pixel;
+    size_t total_bytes = img->image_width * img->image_height * img->bytes_per_pixel;
     img->bdata = malloc(sizeof(unsigned char) * total_bytes);
+    if (img->bdata == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
 
     // Iterate through all pixel components
     unsigned char* bptr = img->bdata;
     float* fptr = img->fdata;
-    for (int i = 0; i < total_bytes; i++, fptr++, bptr++)
+    for (size_t i = 0; i < total_bytes; i++, fptr++, bptr++)
         *bptr = float_to_byte(*fptr);
 }
 
@@ -52,20 +56,19 @@ rtw_image* rtw_image_create(const char* path) {
     img->bytes_per_scanline = 0;
     img->image_height = 0;
     img->image_width = 0;
+    img->fdata = NULL;
+    img->bdata = NULL;
 
     char filepath[256];
-    sprintf(filepath, "Assets/%s", path);
+    snprintf(filepath, sizeof(filepath), "Assets/%s", path);
     // image file exists, successfully load:
     if (load(filepath, img))
         return img;
     else {
-        perror("Load error, no such image");
-        exit(1);
+        fprintf(stderr, "No such image exists.");
+        free(img);
+        return NULL;
     }
-
-    // no image, return null:
-    free(img);
-    return NULL;
 }
 
 /**
@@ -88,7 +91,7 @@ bool load(const char* path, rtw_image* img) {
  */
 const unsigned char* pixel_data(rtw_image* img, int x, int y) {
     static const unsigned char magenta[] = {255, 0, 255};
-    if (img->bdata == NULL)
+    if (img == NULL || img->bdata == NULL || img->image_height == 0 || img->image_width == 0)
         return magenta;
 
     x = img_clamp(x, 0, img->image_width);

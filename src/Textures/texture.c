@@ -64,15 +64,17 @@ color checkered_value(texture* t, double* u, double* v, point3 p) {
  */
 color image_value(texture* t, double* u, double* v, point3 p) {
     image* img = (image*) t->data;
-    if (img->image->image_height <= 0)
+    if (img == NULL || img->image == NULL || img->image->image_height <= 0)
         return vec3_create(0, 1, 1);
 
     interval i0 = interval_create(0, 1);
     *u = clamp(i0, *u);
-    *v = 1.0 - clamp(i0, *v);
+    *v = clamp(i0, *v);
 
     int i = (int) (*u * img->image->image_width);
-    int j = (int) (*v * img->image->image_height);
+    i = (i >= img->image->image_width) ? img->image->image_width - 1 : i;
+    int j = (int) ((1.0 - *v) * img->image->image_height);
+    j = (j >= img->image->image_height) ? img->image->image_height - 1 : j;
     const unsigned char* pixel = pixel_data(img->image, i, j);
 
     double color_scale = 1.0/ 255.0;
@@ -82,8 +84,8 @@ color image_value(texture* t, double* u, double* v, point3 p) {
 /**
  * Get color value for an image texture:
  */
-
 value_fn value_func[NUM_TEX_TYPES] = {
     solid_value,
     checkered_value,
+    image_value,
 };

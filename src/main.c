@@ -21,6 +21,7 @@ int main() {
     int i = 0;
     while (objects[i] != NULL) ++i;
     world = build_bvh(objects, 0, i);
+    printf("BVH done.\n");
 
     // Render scene
     render();
