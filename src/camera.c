@@ -51,7 +51,7 @@ void initialize() {
     // configurable camera variables:
     c->center = c->lookfrom = vec3_create(0, 0, 12);       // point looking from and camera center
     c->lookat = vec3_create(0, 0, 0);                    // point looking at
-    c->vfov = 20;                                           // field of view
+    c->vfov = 30;                                           // field of view
     c->vup = vec3_create(0, 1.0, 0);                        // relative "up" direction
 
     // viewport dimensions:

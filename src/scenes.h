@@ -2,12 +2,13 @@
 #define SCENES_H
 
 #include "Objects/bvh_node.h"
+#include "camera.h"
 
 void bouncing_spheres();
 
 void checkered_spheres();
 
-void world_sphere();
+void textured_spheres();
 
 extern object** objects;
 

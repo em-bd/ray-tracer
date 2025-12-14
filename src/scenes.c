@@ -19,6 +19,9 @@ void scene_init() {
 void bouncing_spheres() {
     int capacity = 10, i = 0;
     scene_init();
+    c->lookfrom = c->center = vec3_create(13, 2, 3);
+    c->lookat = vec3_create(0, 0, 0);
+    c->vfov = 20;
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(0.2, 0.3, .1), vec3_create(.9, .9, .9));
     material* ground = material_create(lambertian_type, lambertian_create(tex));
@@ -75,6 +78,9 @@ void bouncing_spheres() {
  */
 void checkered_spheres() {
     scene_init();
+    c->center = c->lookfrom = vec3_create(0, 0, 12);
+    c->lookat = vec3_create(0, 0, 0);
+    c->vfov = 20;
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(.2, .3, .1), vec3_create(.9, .9, .9));
     material* mat0 = material_create(lambertian_type, lambertian_create(tex));
@@ -87,10 +93,13 @@ void checkered_spheres() {
 }
 
 /**
- * World sphere:
+ * Textured spheres:
  */
-void world_sphere() {
+void textured_spheres() {
     scene_init();
+    c->center = c->lookfrom = vec3_create(0, 0, 12);
+    c->lookat = vec3_create(0, 0, 0);
+    c->vfov = 30;
 
     // globe:
     image* img = image_create("Tx_AI_grass_dirt_01.png");
@@ -98,7 +107,17 @@ void world_sphere() {
         fprintf(stderr, "Failed to load earthmap.\n");
         return;
     }
-    texture* tex = texture_create(image_tex, img);
-    material* mat = material_create(lambertian_type, lambertian_create(tex));
-    objects[0] = object_create(sphere_obj, sphere_create(vec3_create(0, 0, 0), 2, mat));
+    texture* tex0 = texture_create(image_tex, img);
+    material* mat0 = material_create(lambertian_type, lambertian_create(tex0));
+    objects[0] = object_create(sphere_obj, sphere_create(vec3_create(2, 0, 0), 2, mat0));
+
+    texture* tex1 = texture_create(noise_tex, noise_create());
+    material* mat1 = material_create(lambertian_type, lambertian_create(tex1));
+    objects[1] = object_create(sphere_obj, sphere_create(vec3_create(-2, 0, 0), 2, mat1));
+
+    objects[2] = NULL;
 }
+
+/**
+ * 
+ */

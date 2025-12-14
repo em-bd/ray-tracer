@@ -1,31 +1,39 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-
-#include "camera.h"
 #include "scenes.h"
 
-#define frand() (rand() / (RAND_MAX + 1.0))
+int main(int argc, char* argvc[]) {
 
-int main() {
-
-    // Camera
+    // Initialize
     initialize();
 
-    // Load objects
-    printf("Generating objects\n");
-    // bouncing_spheres();
-    // checkered_spheres();
-    world_sphere();
-    printf("Done generating.\n");
+    // Generate objects
+    if (argc == 1) {
+        printf("Generating bouncing spheres.\n");
+        bouncing_spheres();
+    }
+    else if (argc > 1) {
+        int input = atoi(argvc[1]);
+        switch (input) {
+            case 2:
+                printf("Generating checkered spheres.\n");
+                checkered_spheres();
+                break;
+            case 3:
+                printf("Generating textured spheres.\n");
+                textured_spheres();
+                break;
+            default:
+                printf("Generating bouncing spheres.\n");
+                bouncing_spheres();
+                break;
+        }
+    }
+
     int i = 0;
     while (objects[i] != NULL) ++i;
     world = build_bvh(objects, 0, i);
-    printf("BVH done.\n");
-
-    // Render scene
+    // Render
     render();
-
     printf("Done!\n");
+
     return 0;
 }

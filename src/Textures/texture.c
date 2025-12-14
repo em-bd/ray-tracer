@@ -40,19 +40,19 @@ texture* checkered_create_from_solids(double scale, color evens, color odds) {
 /**
  * Get color value for the solid:
  */
-color solid_value(texture* t, double* a, double* b, point3 p) {
+color solid_value(texture* t, double* a, double* b, point3* p) {
     return ((solid_color*) t->data)->albedo;
 }
 
 /**
  * Get color value for the checkered texture:
  */
-color checkered_value(texture* t, double* u, double* v, point3 p) {
+color checkered_value(texture* t, double* u, double* v, point3* p) {
     checkered* c = (checkered*) t->data;
 
-    int xInt = (int) floor(c->inv_scale * p.x);
-    int yInt = (int) floor(c->inv_scale * p.y);
-    int zInt = (int) floor(c->inv_scale * p.z);
+    int xInt = (int) floor(c->inv_scale * p->x);
+    int yInt = (int) floor(c->inv_scale * p->y);
+    int zInt = (int) floor(c->inv_scale * p->z);
 
     bool isEven = (xInt + yInt + zInt) % 2 == 0;
 
@@ -62,7 +62,7 @@ color checkered_value(texture* t, double* u, double* v, point3 p) {
 /**
  * Get the value for an image texture:
  */
-color image_value(texture* t, double* u, double* v, point3 p) {
+color image_value(texture* t, double* u, double* v, point3* p) {
     image* img = (image*) t->data;
     if (img == NULL || img->image == NULL || img->image->image_height <= 0)
         return vec3_create(0, 1, 1);
@@ -82,10 +82,56 @@ color image_value(texture* t, double* u, double* v, point3 p) {
 }
 
 /**
- * Get color value for an image texture:
+ * Get color value for perlin noise:
+ */
+color noise_value(texture* t, double* u, double* v, point3* p) {
+    noise_texture* noise_tex = ((noise_texture*) t->data);
+    return vec3_scalar(vec3_create(1, 1, 1), noise(noise_tex->perlin, p));
+}
+
+/**
+ * Get color value for a texture:
  */
 value_fn value_func[NUM_TEX_TYPES] = {
     solid_value,
     checkered_value,
     image_value,
+    noise_value,
 };
+
+void free_texture(texture* t) {
+    if (t == NULL)
+        return;
+
+    if (t->data != NULL) {
+        switch (t->type) {
+            case solid_tex:
+                free(t->data);
+                break;
+            case checkered_tex:
+                if (((checkered*) t->data)->even != NULL)
+                    free_texture(((checkered*) t->data)->even);
+                if (((checkered*) t->data)->odd != NULL)
+                    free_texture(((checkered*) t->data)->odd);
+                if (t->data != NULL)
+                    free(t->data);
+                break;
+            case image_tex:
+                if (((image*) t->data) != NULL) {
+                    if (((image*) t->data)->image != NULL)
+                        free_img(((image*) t->data)->image);
+                    free_img(t->data);
+                }
+                break;
+            case noise_tex:
+                if (((noise_texture*) t->data) != NULL){
+                    if (((noise_texture*) t->data)->perlin != NULL)
+                        free(((noise_texture*) t->data)->perlin);
+                    free(t->data);
+                }
+                break;
+        }
+    }
+
+    free(t);
+}

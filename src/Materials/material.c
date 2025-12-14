@@ -24,7 +24,7 @@ bool lambertian_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
         scatter_dir = rec.normal;
 
     *scattered = ray_create_time(rec.p, scatter_dir, r_in.tm);
-    *attenuation = value_func[l->tex->type](l->tex, &rec.u, &rec.v, rec.p);
+    *attenuation = value_func[l->tex->type](l->tex, &rec.u, &rec.v, &rec.p);
     return true;
 }
 
@@ -85,34 +85,4 @@ material* material_create(scatter_type type, void* data) {
     m->type = type;
     m->data = data;
     return m;
-}
-
-void free_texture(texture* t) {
-    if (t == NULL)
-        return;
-
-    if (t->data != NULL) {
-        switch (t->type) {
-            case solid_tex:
-                free(t->data);
-                break;
-            case checkered_tex:
-                if (((checkered*) t->data)->even != NULL)
-                    free_texture(((checkered*) t->data)->even);
-                if (((checkered*) t->data)->odd != NULL)
-                    free_texture(((checkered*) t->data)->odd);
-                if (t->data != NULL)
-                    free(t->data);
-                break;
-            case image_tex:
-                if (((image*) t->data) != NULL) {
-                    if (((image*) t->data)->image != NULL)
-                        free_img(((image*) t->data)->image);
-                    free_img(t->data);
-                }
-                break;
-        }
-    }
-
-    free(t);
 }

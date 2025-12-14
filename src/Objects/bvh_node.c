@@ -211,23 +211,14 @@ void free_objects(object* o) {
 
     if (o->data != NULL) {
         switch (o->type) {
-            case sphere_obj:
-            case moving_sphere_obj:
-                if (((sphere*) o->data)->mat != NULL) {
-                    if (((sphere*) o->data)->mat->data != NULL)
-                            free_texture(((sphere*) o->data)->mat->data);
-                    free(((sphere*) o->data)->mat);
-                }
-                free(o->data);
-                break;
-            case triangle_obj:
-                free(o->data);
-                break;
             case bvh_node_obj:
                 if (((bvh_node*) o->data)->left != NULL)
                     free_objects(((bvh_node*) o->data)->left);
                 if (((bvh_node*) o->data)->right != NULL)
                     free_objects(((bvh_node*) o->data)->right);
+                free(o->data);
+                break;
+            default:
                 free(o->data);
                 break;
         }
