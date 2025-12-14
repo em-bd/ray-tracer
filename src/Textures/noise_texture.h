@@ -5,8 +5,9 @@
 
 typedef struct {
     perlin* perlin;
+    double scale;
 } noise_texture;
 
-noise_texture* noise_create();
+noise_texture* noise_create(double);
 
 #endif

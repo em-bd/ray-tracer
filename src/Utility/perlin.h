@@ -6,14 +6,16 @@
 
 typedef struct {
     int point_count;
-    double rand_float[256];
     int* perm_x;
     int* perm_y;
     int* perm_z;
+    vec3* randvec;
 } perlin;
 
 perlin* perlin_create();
 
 double noise(perlin*, point3*);
+
+double turb(perlin*, point3*, int);
 
 #endif

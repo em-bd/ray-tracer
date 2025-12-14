@@ -86,7 +86,7 @@ color image_value(texture* t, double* u, double* v, point3* p) {
  */
 color noise_value(texture* t, double* u, double* v, point3* p) {
     noise_texture* noise_tex = ((noise_texture*) t->data);
-    return vec3_scalar(vec3_create(1, 1, 1), noise(noise_tex->perlin, p));
+    return vec3_scalar(vec3_create(.5, .5, .5), (1 + sin(noise_tex->scale * p->z + 10 * turb(noise_tex->perlin, p, 7))));
 }
 
 /**
@@ -98,40 +98,3 @@ value_fn value_func[NUM_TEX_TYPES] = {
     image_value,
     noise_value,
 };
-
-void free_texture(texture* t) {
-    if (t == NULL)
-        return;
-
-    if (t->data != NULL) {
-        switch (t->type) {
-            case solid_tex:
-                free(t->data);
-                break;
-            case checkered_tex:
-                if (((checkered*) t->data)->even != NULL)
-                    free_texture(((checkered*) t->data)->even);
-                if (((checkered*) t->data)->odd != NULL)
-                    free_texture(((checkered*) t->data)->odd);
-                if (t->data != NULL)
-                    free(t->data);
-                break;
-            case image_tex:
-                if (((image*) t->data) != NULL) {
-                    if (((image*) t->data)->image != NULL)
-                        free_img(((image*) t->data)->image);
-                    free_img(t->data);
-                }
-                break;
-            case noise_tex:
-                if (((noise_texture*) t->data) != NULL){
-                    if (((noise_texture*) t->data)->perlin != NULL)
-                        free(((noise_texture*) t->data)->perlin);
-                    free(t->data);
-                }
-                break;
-        }
-    }
-
-    free(t);
-}

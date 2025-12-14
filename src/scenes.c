@@ -111,7 +111,7 @@ void textured_spheres() {
     material* mat0 = material_create(lambertian_type, lambertian_create(tex0));
     objects[0] = object_create(sphere_obj, sphere_create(vec3_create(2, 0, 0), 2, mat0));
 
-    texture* tex1 = texture_create(noise_tex, noise_create());
+    texture* tex1 = texture_create(noise_tex, noise_create(4));
     material* mat1 = material_create(lambertian_type, lambertian_create(tex1));
     objects[1] = object_create(sphere_obj, sphere_create(vec3_create(-2, 0, 0), 2, mat1));
 

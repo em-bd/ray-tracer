@@ -32,8 +32,6 @@ texture* checkered_create(double, texture*, texture*);
 
 texture* checkered_create_from_solids(double, color, color);
 
-void free_texture(texture*);
-
 typedef color (*value_fn)(texture*, double*, double*, point3*);
 extern value_fn value_func[NUM_TEX_TYPES];
 

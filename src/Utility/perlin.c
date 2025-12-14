@@ -18,6 +18,31 @@ void perlin_generate_perm(perlin* per, int* p) {
     permute(p, per->point_count);
 }
 
+/**
+ * Perform a trilinear interpolation:
+ */
+double perlin_interp(vec3 c[2][2][2], double u, double v, double w) {
+    // hermitian smoothing:
+    double uu = u*u*(3-2*u);
+    double vv = v*v*(3-2*v);
+    double ww = w*w*(3-2*w);
+    double accum = 0.0;
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                vec3 weight_v = vec3_create(u-i, v-j, w-k);
+                accum += (i*uu + (1-i)*(1-uu))
+                    * (j*vv + (1-j)*(1-vv))
+                    * (k*ww + (1-k)*(1-ww))
+                    * vec3_dot(c[i][j][k], weight_v);
+            }
+        }
+    }
+
+    return accum;
+}
+
 // PUBLIC FUNCTIONS
 
 /**
@@ -30,8 +55,10 @@ perlin* perlin_create() {
         exit(1);
     }
     per->point_count = 256;
+    per->randvec = malloc(sizeof(vec3) * per->point_count);
+    interval in = interval_create(-1, 1);
     for (int i = 0; i < per->point_count; i++)
-        per->rand_float[i] = rand_double();
+        per->randvec[i] = vec3_unit(vec3_random(in));
 
     per->perm_x = malloc(sizeof(int) * per->point_count);
     perlin_generate_perm(per, per->perm_x);
@@ -43,9 +70,40 @@ perlin* perlin_create() {
 }
 
 double noise(perlin* per, point3* p) {
-    int i = (int) (4 * p->x) & 255;
-    int j = (int) (4 * p->y) & 255;
-    int k = (int) (4 * p->z) & 255;
+    double u = p->x - floor(p->x);
+    double v = p->y - floor(p->y);
+    double w = p->z - floor(p->z);
 
-    return per->rand_float[per->perm_x[i] ^ per->perm_y[j] ^ per->perm_z[k]];
+    int i = floor(p->x);
+    int j = floor(p->y);
+    int k = floor(p->z);
+
+    vec3 c[2][2][2];
+
+    for (int di = 0; di < 2; di++) {
+        for (int dj = 0; dj < 2; dj++) {
+            for (int dk = 0; dk < 2; dk++) {
+                c[di][dj][dk] = per->randvec
+                    [per->perm_x[(i + di) & 255] ^
+                    per->perm_y[(j + dj) & 255] ^
+                    per->perm_z[(k + dk) & 255]];
+            }
+        }
+    }
+
+    return perlin_interp(c, u, v, w);
+}
+
+double turb(perlin* per, point3* p, int depth) {
+    double accum = 0.0;
+    point3 temp = *p;
+    double weight = 1.0;
+
+    for (int i = 0; i < depth; i++) {
+        accum += weight * noise(per, &temp);
+        weight *= 0.5;
+        temp = vec3_scalar(temp, 2);
+    }
+
+    return fabs(accum);
 }
