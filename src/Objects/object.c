@@ -58,7 +58,44 @@ bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
  * Determine if the ray hits the triangle:
  */
 bool hit_triangle(ray r, interval i, hit_record* rec, object* o) {
-    //TODO: complete triangle hit calculation
+    triangle* tri = (triangle*) o->data;
+
+    // ray-plane intersection:
+    vec3 e1 = vec3_sub(tri->b, tri->a);
+    vec3 e2 = vec3_sub(tri->c, tri->a);
+    vec3 norm = vec3_cross(e1, e2);
+
+    double denom = vec3_dot(r.dir, norm);
+    // parallel to plane:
+    if (fabs(denom) < epsilon)  return false;
+
+    double t = vec3_dot(vec3_sub(tri->a, r.orig), norm) / denom;
+    if (!surrounds(i, t))   return false;
+
+    // parameterize ray:
+    point3 p = at(r, t);
+
+    // barycentric coordinate calculations:
+    vec3 n_a = vec3_cross(vec3_sub(tri->c, tri->b), vec3_sub(p, tri->b));
+    vec3 n_b = vec3_cross(vec3_sub(tri->a, tri->c), vec3_sub(p, tri->c));
+    vec3 n_c = vec3_cross(vec3_sub(tri->b, tri->a), vec3_sub(p, tri->a));
+    vec3 n = vec3_cross(vec3_sub(tri->b, tri->a), vec3_sub(tri->c, tri->a));
+
+    double x = vec3_dot(n, n_a) / vec3_dot(n, n);
+    double y = vec3_dot(n, n_b) / vec3_dot(n, n);
+    double z = vec3_dot(n, n_c) / vec3_dot(n, n);
+
+    // any barycentrics are negative, no hit:
+    if (x < -epsilon || y < -epsilon || z < -epsilon) return false;
+
+    rec->t = t;
+    rec->p = p;
+    vec3 outward_normal = vec3_unit(norm);
+    set_face_normal(r, outward_normal, rec);
+    rec->mat = tri->mat;
+    rec->u = x;
+    rec->v = y;
+
     return true;
 }
 

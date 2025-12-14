@@ -26,6 +26,10 @@ int main(int argc, char* argvc[]) {
                 printf("Generating a simple light scene.\n");
                 simple_light();
                 break;
+            case 6:
+                printf("Generating a simple triangle scene.\n");
+                simple_triangle();
+                break;
             default:
                 printf("Generating bouncing spheres.\n");
                 bouncing_spheres();

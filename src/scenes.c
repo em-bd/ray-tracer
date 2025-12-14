@@ -167,3 +167,41 @@ void simple_light() {
     objects[2] = s2;
     objects[3] = NULL;
 }
+
+/**
+ * Triangle scene:
+ */
+void simple_triangle() {
+    scene_init();
+    initialize((16.0/9.0), 400, vec3_create(0,1,2), vec3_create(0,0,-3), 40, vec3_create(0,1,0), 0);
+    c->background = vec3_create(0,0,0);
+
+    texture* tex = texture_create(solid_tex, solid_create(0.8, 0.2, 0.2));
+    material* mat = material_create(lambertian_type, lambertian_create(tex));
+    object* ground = object_create(sphere_obj, sphere_create(vec3_create(0,-1001,0),1000,mat));
+    objects[0] = ground;
+
+    texture* tex0 = texture_create(solid_tex, solid_create(0.8, 0.8, 0.8));
+    material* mat0 = material_create(lambertian_type, lambertian_create(tex0));
+    object* tri0 = object_create(triangle_obj, 
+            triangle_create(vec3_create(-1,0,-3), vec3_create(1,0,-3), vec3_create(0,1,-3), mat0));
+    objects[1] = tri0;
+
+    texture* tex1 = texture_create(solid_tex, solid_create(0.1, 0.7, 0.9));
+    material* mat1 = material_create(lambertian_type, lambertian_create(tex1));
+    object* tri1 = object_create(triangle_obj,
+            triangle_create(vec3_create(-1,0,-3), vec3_create(1,0,-3), vec3_create(0,-1,-3), mat1));
+    objects[2] = tri1;
+
+    material* mat2 = material_create(emissive_type, emissive_create_color(vec3_create(0.8, 0.2, 0.2)));
+    object* tri2 = object_create(triangle_obj, 
+            triangle_create(vec3_create(-2,0,-1), vec3_create(-2,0,-3), vec3_create(-2,1,-2), mat2));
+    objects[3] = tri2;
+
+    material* mat3 = material_create(emissive_type, emissive_create_color(vec3_create(1.0, 0.65, 0.0)));
+    object* tri3 = object_create(triangle_obj,
+            triangle_create(vec3_create(-2,0,-1), vec3_create(-2,0,-3), vec3_create(-2,-1,-2), mat3));
+    objects[4] = tri3;
+
+    objects[7] = NULL;
+}

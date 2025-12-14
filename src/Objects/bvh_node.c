@@ -30,8 +30,20 @@ void moving_sphere_box(object* o) {
  * Triangle bounding box function
  */
 void triangle_box(object* o) {
-    //TODO: calculate the bounding box for a triangle
-    o->bbox = empty_aabb;
+    triangle* t = (triangle*) o->data;
+
+    double x_min = fmin(t->a.x, fmin(t->b.x, t->c.x));
+    double y_min = fmin(t->a.y, fmin(t->b.y, t->c.y));
+    double z_min = fmin(t->a.z, fmin(t->b.z, t->c.z));
+
+    double x_max = fmax(t->a.x, fmax(t->b.x, t->c.x));
+    double y_max = fmax(t->a.y, fmax(t->b.y, t->c.y));
+    double z_max = fmax(t->a.z, fmax(t->b.z, t->c.z));
+
+    point3 min = vec3_create(x_min - epsilon, y_min - epsilon, z_min - epsilon);
+    point3 max = vec3_create(x_max + epsilon, y_max + epsilon, z_max + epsilon);
+
+    o->bbox = aabb_points(min, max);
 }
 
 /**

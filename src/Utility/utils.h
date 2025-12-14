@@ -8,6 +8,7 @@
 // macros
 #define infinity    INFINITY
 #define pi          3.1415926535897932385
+#define epsilon     1e-5
 
 double degrees_to_radians(double);
 

@@ -14,6 +14,8 @@ void quads();
 
 void simple_light();
 
+void simple_triangle();
+
 extern object** objects;
 
 #endif
