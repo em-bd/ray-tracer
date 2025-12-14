@@ -65,6 +65,43 @@ interval axis_interval(aabb a, int n) {
 // HELPER FUNCTIONS
 
 /**
+ * Add an offset to an aabb:
+ */
+aabb aabb_offset(aabb a, vec3 offset) {
+    interval x = interval_displacement(a.x, offset.y);
+    interval y = interval_displacement(a.y, offset.y);
+    interval z = interval_displacement(a.z, offset.z);
+    return aabb_create(x, y, z);
+}
+
+/**
+ * Get the center of an aabb (for looking at models):
+ */
+point3 aabb_center(aabb box) {
+    double cx = (box.x.min + box.x.max) * 0.5;
+    double cy = (box.y.min + box.y.max) * 0.5;
+    double cz = (box.z.min + box.z.max) * 0.5;
+    return vec3_create(cx, cy, cz);
+}
+
+/**
+ * Get the extent of the aabb:
+ */
+vec3 aabb_extent(aabb box) {
+    return vec3_create(size(box.x), size(box.y), size(box.z));
+}
+
+/**
+ * Calculate the overall diagonal length:
+ */
+double aabb_diagonal(aabb box) {
+    double dx = size(box.x);
+    double dy = size(box.y);
+    double dz = size(box.z);
+    return sqrt(dx*dx + dy*dy + dz*dz);
+}
+
+/**
  * Getting the coordinate for a vector
  */
 double vec3_coord(vec3 v, int n) {

@@ -90,3 +90,33 @@ object* quad_create(point3 Q, vec3 u, vec3 v, material* mat) {
 
     return object_create(quad_obj, q, q->bbox, hit_quad);
 }
+
+/**
+ * Create a box (array of quads):
+ */
+object** box(point3 a, point3 b, material* mat) {
+    // 6 sides, so array of 6 quads
+    object** sides = malloc(sizeof(object*) * 6);
+    if (sides == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
+
+    // opposite vertices with the min and max coordinates:
+    point3 min = vec3_create(fmin(a.x, b.x), fmin(a.y, b.y), fmin(a.z, b.z));
+    point3 max = vec3_create(fmax(a.x, b.x), fmax(a.y, b.y), fmax(a.z, b.z));
+
+    vec3 dx = vec3_create(max.x - min.x, 0, 0);
+    vec3 dy = vec3_create(0, max.y - min.y, 0);
+    vec3 dz = vec3_create(0, 0, max.z - min.z);
+
+    // add all sides to the object array:
+    sides[0] = quad_create(vec3_create(min.x, min.y, max.z), dx, dy, mat); // front
+    sides[1] = quad_create(vec3_create(max.x, min.y, max.z), vec3_negative(dz), dy, mat); // right
+    sides[2] = quad_create(vec3_create(max.x, min.y, min.z), vec3_negative(dx), dy, mat); // back
+    sides[3] = quad_create(vec3_create(min.x, min.y, min.z), dz, dy, mat); // left
+    sides[4] = quad_create(vec3_create(min.x, max.y, max.z), dx, vec3_negative(dz), mat); // top
+    sides[5] = quad_create(vec3_create(min.x, min.y, max.z), dx, dz, mat); // bottom
+
+    return sides;
+}

@@ -1,11 +1,9 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <stdbool.h>
-
-#include "../Utility/aabb.h"
 #include "../Utility/utils.h"
 #include "../Materials/material.h"
+#include "../Utility/aabb.h"
 
 typedef bool (*hit_fn)(ray, interval, hit_record*, void*);
 
@@ -17,6 +15,8 @@ typedef enum {
     moving_sphere_obj,
     triangle_obj,
     quad_obj,
+    triangle_mesh_obj,
+    translate_obj,
     bvh_node_obj,
 } obj_type;
 

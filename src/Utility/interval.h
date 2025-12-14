@@ -16,6 +16,8 @@ interval interval_create(double, double);
 
 interval interval_from_intervals(interval, interval);
 
+interval interval_displacement(interval, double);
+
 interval expand(interval, double);
 
 double size(interval);

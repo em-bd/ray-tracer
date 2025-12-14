@@ -30,6 +30,10 @@ int main(int argc, char* argvc[]) {
                 printf("Generating a simple triangle scene.\n");
                 simple_triangle();
                 break;
+            case 7:
+                printf("Generating a low-poly eevee model.\n");
+                low_poly_mesh();
+                break;
             default:
                 printf("Generating bouncing spheres.\n");
                 bouncing_spheres();

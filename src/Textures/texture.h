@@ -1,8 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "../Utility/color.h"
 #include "../Utility/utils.h"
+#include "../Utility/color.h"
 
 typedef color (*value_fn)(void*, double*, double*, point3*);
 

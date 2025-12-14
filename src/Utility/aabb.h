@@ -19,7 +19,15 @@ aabb aabb_points(point3, point3);
 
 aabb aabb_from_aabbs(aabb, aabb);
 
+aabb aabb_offset(aabb, vec3);
+
 interval axis_interval(aabb, int);
+
+point3 aabb_center(aabb);
+
+vec3 aabb_extent(aabb);
+
+double aabb_diagonal(aabb);
 
 bool aabb_hit(ray, interval, aabb);
 

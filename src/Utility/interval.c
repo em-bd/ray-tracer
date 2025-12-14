@@ -14,6 +14,13 @@ interval interval_create(double min, double max) {
 }
 
 /**
+ * 
+ */
+interval interval_displacement(interval i, double displacement) {
+    return interval_create(i.min + displacement, i.max + displacement);
+}
+
+/**
  * Create an interval by enclosing two intervals:
  */
 interval interval_from_intervals(interval i1, interval i2) {

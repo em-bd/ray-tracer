@@ -1,10 +1,6 @@
 #ifndef VECTORS_H
 #define VECTORS_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "utils.h"
 
 typedef struct {

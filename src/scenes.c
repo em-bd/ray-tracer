@@ -185,5 +185,31 @@ void simple_triangle() {
 }
 
 /**
+ * Generates a low-poly eevee model:
+ */
+void low_poly_mesh() {
+    scene_init();
+
+    material* m1 = lambertian_create(solid_create(.388, .235, .082));
+    material *m2 = lambertian_create(solid_create(.937, .859, .714));
+    object* eevee_body = load_binary_stl("eevee_lowpoly_flowalistik_dual1.STL", m1);
+    object* eevee_fluff = load_binary_stl("eevee_lowpoly_flowalistik_dual2.STL", m2);
+
+    objects[0] = eevee_body;
+    objects[1] = eevee_fluff;
+
+    point3 center = aabb_center(eevee_body->bbox);
+    double diag = aabb_diagonal(eevee_body->bbox);
+
+    initialize(1.0, 400, vec3_create(center.x, center.y - diag * 2.0, center.z + diag * 0.5), center, 45, vec3_create(0,0,1), 0);
+    c->background = vec3_create(0.7, 0.8, 1);
+
+    // ground sphere:
+    material* mat = lambertian_create(solid_create(0.5, 0.5, 0.5));
+    objects[2] = sphere_create(vec3_create(center.x, center.y, eevee_body->bbox.z.min - 1000), 1000, mat);
+    objects[3] = NULL;
+}
+
+/**
  * Final put together scene:
  */

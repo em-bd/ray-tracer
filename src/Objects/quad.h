@@ -14,6 +14,6 @@ typedef struct {
 
 object* quad_create(point3, vec3, vec3, material*);
 
-bool is_interior(double, double, hit_record*);
+object** box(point3, point3, material*);
 
 #endif
