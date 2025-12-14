@@ -2,9 +2,6 @@
 
 int main(int argc, char* argvc[]) {
 
-    // Initialize
-    initialize();
-
     // Generate objects
     if (argc == 1) {
         printf("Generating bouncing spheres.\n");
@@ -24,6 +21,10 @@ int main(int argc, char* argvc[]) {
             case 4:
                 printf("Generating colorful quads.\n");
                 quads();
+                break;
+            case 5:
+                printf("Generating a simple light scene.\n");
+                simple_light();
                 break;
             default:
                 printf("Generating bouncing spheres.\n");

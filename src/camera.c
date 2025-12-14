@@ -38,24 +38,24 @@ ray get(int i, int j) {
 /**
  * Initialize the camera:
  */
-void initialize() {
+void initialize(double ar, int img_w, vec3 from, vec3 at, int vfov, vec3 vup, double ang) {
     c = malloc(sizeof(camera));
     c->pixel_samples_scale = 1.0 / ((double) SAMPLES_PER_PIXEL);
     c->max_depth = 50;
 
-    c->aspect_ratio = 1.0;
-    c->image_width = 400;
+    c->aspect_ratio = ar;
+    c->image_width = img_w;
     c->image_height = (int) (c->image_width / c->aspect_ratio);
     c->image_height = (c->image_height < 1) ? 1 : c->image_height;
 
     // configurable camera variables:
-    c->center = c->lookfrom = vec3_create(0, 0, 9);       // point looking from and camera center
-    c->lookat = vec3_create(0, 0, 0);                    // point looking at
-    c->vfov = 80;                                           // field of view
-    c->vup = vec3_create(0, 1.0, 0);                        // relative "up" direction
+    c->center = c->lookfrom = from;       // point looking from and camera center
+    c->lookat = at;                       // point looking at
+    c->vfov = vfov;                       // field of view
+    c->vup = vup;                         // relative "up" direction
 
     // viewport dimensions:
-    c->defocus_angle = 0;
+    c->defocus_angle = ang;
     // c->focus_dist = vec3_length(vec3_sub(c->lookfrom, c->lookat));
     c->focus_dist = 10;
     double theta = degrees_to_radians(c->vfov);
@@ -134,23 +134,21 @@ void render() {
  */
 color ray_color(ray r, int depth) {
     // if we've exceeded the ray bounce limit, no more light is gathered:
-    if (depth <= 0)
-        return vec3_create(0, 0, 0);
-    // check if the ray intersects anything:
+    if (depth <= 0) return vec3_create(0, 0, 0);
+
     hit_record rec;
-    if (hit_func[world->type](r, interval_create(0.001, infinity), &rec, world)) {
-        ray scattered;
-        color attenuation;
-        if (scatter_func[rec.mat->type](r, rec, &attenuation, &scattered, rec.mat))
-            return vec3_mul(ray_color(scattered, depth - 1), attenuation);
-        return vec3_create(0, 0, 0);
-    }
+    // ray hits nothing, return background color:
+    if (!hit_func[world->type](r, interval_create(0.001, infinity), &rec, world))    return c->background;
 
-    vec3 unit_dir = vec3_unit(r.dir);
-    double a = 0.5 * (unit_dir.y + 1.0);
+    ray scattered;
+    color attenuation;
+    color emission_color = vec3_create(0,0,0);
+    if (rec.mat->type == emissive_type)
+        emission_color = emitted((emissive*) rec.mat->data, &rec.u, &rec.v, &rec.p);
 
-    color white = vec3_create(1.0, 1.0, 1.0);
-    color blue = vec3_create(0.5, 0.7, 1.0);
+    if (!scatter_func[rec.mat->type](r, rec, &attenuation, &scattered, rec.mat))    return emission_color;
 
-    return vec3_add(vec3_scalar(white, (1.0 - a)), vec3_scalar(blue, a));
+    color scatter_color = vec3_mul(attenuation, ray_color(scattered, depth - 1));
+
+    return vec3_add(emission_color, scatter_color);
 }

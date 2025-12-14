@@ -12,6 +12,8 @@ void textured_spheres();
 
 void quads();
 
+void simple_light();
+
 extern object** objects;
 
 #endif

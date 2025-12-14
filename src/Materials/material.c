@@ -65,12 +65,20 @@ bool dielectric_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
     return true;
 }
 
+/**
+ * Scatter function for an emissive material:
+ */
+bool emissive_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered, material* mat) {
+    return false;
+}
+
 // PUBLIC METHODS
 
 scatter_fn scatter_func[NUM_SCATTER_TYPES] = {
     lambertian_scatter,
     metal_scatter,
     dielectric_scatter,
+    emissive_scatter,
 };
 
 /**

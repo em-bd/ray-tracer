@@ -19,6 +19,8 @@ void scene_init() {
 void bouncing_spheres() {
     int capacity = 10, i = 0;
     scene_init();
+    initialize((16.0/9.0), 400, vec3_create(13,2,3), vec3_create(0,0,0), 20, vec3_create(0,1,0), 0.6);
+    c->background = vec3_create(0.7, 0.8, 1);
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(0.2, 0.3, .1), vec3_create(.9, .9, .9));
     material* ground = material_create(lambertian_type, lambertian_create(tex));
@@ -75,6 +77,8 @@ void bouncing_spheres() {
  */
 void checkered_spheres() {
     scene_init();
+    initialize((16.0/9.0), 400, vec3_create(13,2,3), vec3_create(0,0,0), 20, vec3_create(0,1,0), 0);
+    c->background = vec3_create(0.7, 0.8, 1);
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(.2, .3, .1), vec3_create(.9, .9, .9));
     material* mat0 = material_create(lambertian_type, lambertian_create(tex));
@@ -91,6 +95,8 @@ void checkered_spheres() {
  */
 void textured_spheres() {
     scene_init();
+    initialize((16.0/9.0), 400, vec3_create(0, 0, 12), vec3_create(0,0,0), 20, vec3_create(0,1,0), 0);
+    c->background = vec3_create(0.7, 0.8, 1);
 
     // globe:
     image* img = image_create("Tx_AI_grass_dirt_01.png");
@@ -114,6 +120,8 @@ void textured_spheres() {
  */
 void quads() {
     scene_init();
+    initialize(1.0, 400, vec3_create(0, 0, 9), vec3_create(0,0,0), 80, vec3_create(0,1,0), 0);
+    c->background = vec3_create(0.7, 0.8, 1);
 
     texture* red = texture_create(solid_tex, solid_create(1, 0.2, 0.2));
     material* left = material_create(lambertian_type, lambertian_create(red));
@@ -141,4 +149,21 @@ void quads() {
     objects[3] = q4;
     objects[4] = q5;
     objects[5] = NULL;
+}
+
+void simple_light() {
+    scene_init();
+    initialize((16.0/9.0), 400, vec3_create(26,3,6), vec3_create(0,2,0), 20, vec3_create(0,1,0), 0);
+    c->background = vec3_create(0,0,0);
+
+    texture* pertext = texture_create(noise_tex, noise_create(4));
+    object* s0 = object_create(sphere_obj, sphere_create(vec3_create(0, -1000, 0), 1000, material_create(lambertian_type, lambertian_create(pertext))));
+    object* s1 = object_create(sphere_obj, sphere_create(vec3_create(0, 2, 0), 2, material_create(lambertian_type, lambertian_create(pertext))));
+    objects[0] = s0;
+    objects[1] = s1;
+
+    material* difflight = material_create(emissive_type, emissive_create_color(vec3_create(4,4,4)));
+    object* s2 = object_create(sphere_obj, sphere_create(vec3_create(0,7,0), 2, difflight));
+    objects[2] = s2;
+    objects[3] = NULL;
 }

@@ -5,8 +5,9 @@
 #include "metal.h"
 #include "lambertian.h"
 #include "dielectric.h"
+#include "emissive.h"
 
-#define NUM_SCATTER_TYPES       3
+#define NUM_SCATTER_TYPES       4
 
 /**
  * Scatter type enumeration structure:
@@ -15,6 +16,7 @@ typedef enum {
     lambertian_type,
     metal_type,
     dielectric_type,
+    emissive_type,
 } scatter_type;
 
 /**

@@ -23,13 +23,14 @@ typedef struct {
     vec3 v, u, w;                       
     double defocus_angle;
     double focus_dist;
-    vec3 defocus_disk_u, defocus_disk_v;             
+    vec3 defocus_disk_u, defocus_disk_v;
+    color background;       
 } camera;
 
 extern camera* c;
 extern object* world;
 
-void initialize();
+void initialize(double, int, vec3, vec3, int, vec3, double);
 
 void render();
 
