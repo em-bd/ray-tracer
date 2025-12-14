@@ -19,9 +19,6 @@ void scene_init() {
 void bouncing_spheres() {
     int capacity = 10, i = 0;
     scene_init();
-    c->lookfrom = c->center = vec3_create(13, 2, 3);
-    c->lookat = vec3_create(0, 0, 0);
-    c->vfov = 20;
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(0.2, 0.3, .1), vec3_create(.9, .9, .9));
     material* ground = material_create(lambertian_type, lambertian_create(tex));
@@ -78,9 +75,6 @@ void bouncing_spheres() {
  */
 void checkered_spheres() {
     scene_init();
-    c->center = c->lookfrom = vec3_create(0, 0, 12);
-    c->lookat = vec3_create(0, 0, 0);
-    c->vfov = 20;
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(.2, .3, .1), vec3_create(.9, .9, .9));
     material* mat0 = material_create(lambertian_type, lambertian_create(tex));
@@ -97,9 +91,6 @@ void checkered_spheres() {
  */
 void textured_spheres() {
     scene_init();
-    c->center = c->lookfrom = vec3_create(0, 0, 12);
-    c->lookat = vec3_create(0, 0, 0);
-    c->vfov = 30;
 
     // globe:
     image* img = image_create("Tx_AI_grass_dirt_01.png");
@@ -119,5 +110,35 @@ void textured_spheres() {
 }
 
 /**
- * 
+ * 5 colorful quadrilaterals:
  */
+void quads() {
+    scene_init();
+
+    texture* red = texture_create(solid_tex, solid_create(1, 0.2, 0.2));
+    material* left = material_create(lambertian_type, lambertian_create(red));
+    object* q1 = object_create(quad_obj, quad_create(vec3_create(-3, -2, 5), vec3_create(0, 0, -4), vec3_create(0, 4, 0), left));
+    
+    texture* green = texture_create(solid_tex, solid_create(0.2, 1.0, 0.2));
+    material* back = material_create(lambertian_type, lambertian_create(green));
+    object* q2 = object_create(quad_obj, quad_create(vec3_create(-2, -2, 0), vec3_create(4, 0, 0), vec3_create(0, 4, 0), back));
+    
+    texture* blue = texture_create(solid_tex, solid_create(0.2, 0.2, 1.0));
+    material* right = material_create(lambertian_type, lambertian_create(blue));
+    object* q3 = object_create(quad_obj, quad_create(vec3_create(3, -2, 1), vec3_create(0, 0, 4), vec3_create(0, 4, 0), right));
+    
+    texture* orange = texture_create(solid_tex, solid_create(1.0, 0.5, 0.0));
+    material* top = material_create(lambertian_type, lambertian_create(orange));
+    object* q4 = object_create(quad_obj, quad_create(vec3_create(-2, 3, 1), vec3_create(4, 0, 0), vec3_create(0, 0, 4), top));
+    
+    texture* teal = texture_create(solid_tex, solid_create(0.2, 0.8, 0.8));
+    material* bottom = material_create(lambertian_type, lambertian_create(teal));
+    object* q5 = object_create(quad_obj, quad_create(vec3_create(-2, -3, 5), vec3_create(4, 0, 0), vec3_create(0, 0, -4), bottom));
+
+    objects[0] = q1;
+    objects[1] = q2;
+    objects[2] = q3;
+    objects[3] = q4;
+    objects[4] = q5;
+    objects[5] = NULL;
+}

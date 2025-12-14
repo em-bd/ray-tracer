@@ -21,6 +21,10 @@ int main(int argc, char* argvc[]) {
                 printf("Generating textured spheres.\n");
                 textured_spheres();
                 break;
+            case 4:
+                printf("Generating colorful quads.\n");
+                quads();
+                break;
             default:
                 printf("Generating bouncing spheres.\n");
                 bouncing_spheres();

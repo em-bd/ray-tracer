@@ -10,6 +10,8 @@ void checkered_spheres();
 
 void textured_spheres();
 
+void quads();
+
 extern object** objects;
 
 #endif

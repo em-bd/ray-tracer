@@ -61,3 +61,33 @@ bool hit_triangle(ray r, interval i, hit_record* rec, object* o) {
     //TODO: complete triangle hit calculation
     return true;
 }
+
+/**
+ * Determine if the ray hits the quadrilateral:
+ */
+bool hit_quad(ray r, interval i, hit_record* rec, object* o) {
+    quad* q = (quad*) o->data;
+    double denom = vec3_dot(q->normal, r.dir);
+
+    // doesn't hit if the ray is parallel:
+    if (fabs(denom) < 1e-8) return false;
+
+    // doesn't hit if the point parameter t is outside the ray interval:
+    double t = (q->D - vec3_dot(q->normal, r.orig)) / denom;
+    if (!contains(i, t))    return false;
+
+    // determine if the hit point is within the planar shape:
+    point3 intersection = at(r, t);
+    vec3 planar_hitpt_vec = vec3_sub(intersection, q->Q);
+    double alpha = vec3_dot(q->w, vec3_cross(planar_hitpt_vec, q->v));
+    double beta = vec3_dot(q->w, vec3_cross(q->u, planar_hitpt_vec));
+
+    if (!is_interior(alpha, beta, rec))  return false;
+
+    rec->t = t;
+    rec->p = intersection;
+    rec->mat = q->mat;
+    set_face_normal(r, q->normal, rec);
+
+    return true;
+}

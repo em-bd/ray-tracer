@@ -26,18 +26,31 @@ void moving_sphere_box(object* o) {
     o->bbox = aabb_from_aabbs(box0, box1);
 }
 
-// /**
-//  * Triangle bounding box function
-//  */
-// void triangle_box(object* o) {
+/**
+ * Triangle bounding box function
+ */
+void triangle_box(object* o) {
+    //TODO: calculate the bounding box for a triangle
+    o->bbox = empty_aabb;
+}
 
-// }
+/**
+ * Quadrilateral bounding box function
+ */
+void quad_box(object* o) {
+    quad* q = (quad*) o->data;
+
+    aabb bbox_diagonal1 = aabb_points(q->Q, vec3_add(q->Q, vec3_add(q->u, q->v)));
+    aabb bbox_diagonal2 = aabb_points(vec3_add(q->Q, q->u), vec3_add(q->Q, q->v));
+    o->bbox = aabb_from_aabbs(bbox_diagonal1, bbox_diagonal2);
+}
 
 typedef void (*aabb_fn)(object*);
-aabb_fn aabb_func[2] = {
+aabb_fn aabb_func[4] = {
     sphere_box,
     moving_sphere_box,
-    // triangle_box,
+    triangle_box,
+    quad_box,
 };
 
 // comparator functions:
@@ -129,6 +142,7 @@ hit_fn hit_func[NUM_OBJ_TYPES] = {
     hit_sphere,
     hit_sphere,
     hit_triangle,
+    hit_quad,
     hit_bvh,
 };
 

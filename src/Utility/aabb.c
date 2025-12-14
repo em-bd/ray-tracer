@@ -3,6 +3,21 @@
 aabb empty_aabb;
 aabb universe_aabb;
 
+// PRIVATE FUNCTIONS
+
+/**
+ * Adjust the Axis-Aligned Bounding Box so that no side is narrower than some delta:
+ */
+void pad_to_minimums(aabb* a) {
+    double delta = 0.0001;
+
+    if (size(a->x) < delta) a->x = expand(a->x, delta);
+    if (size(a->y) < delta) a->y = expand(a->y, delta);
+    if (size(a->z) < delta) a->z = expand(a->z, delta);
+}
+
+// PUBLIC FUNCTIONS
+
 /**
  * Create Axis-Aligned Bounding Box:
  */
@@ -11,6 +26,7 @@ aabb aabb_create(interval x, interval y, interval z) {
     a.x = x;
     a.y = y;
     a.z = z;
+    pad_to_minimums(&a);
     return a;
 }
 
@@ -22,6 +38,7 @@ aabb aabb_points(point3 a, point3 b) {
     ab.x = (a.x <= b.x) ? interval_create(a.x, b.x) : interval_create(b.x, a.x);
     ab.y = (a.y <= b.y) ? interval_create(a.y, b.y) : interval_create(b.y, a.y);
     ab.z = (a.z <= b.z) ? interval_create(a.z, b.z) : interval_create(b.z, a.z);
+    pad_to_minimums(&ab);
     return ab;
 }
 

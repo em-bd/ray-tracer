@@ -9,7 +9,7 @@
 #include "triangle.h"
 #include "quad.h"
 
-#define NUM_OBJ_TYPES       4
+#define NUM_OBJ_TYPES       5
 
 /**
  * Object Type enumerated data structure:
@@ -18,6 +18,7 @@ typedef enum {
     sphere_obj,
     moving_sphere_obj,
     triangle_obj,
+    quad_obj,
     bvh_node_obj,
 } obj_type;
 
@@ -34,5 +35,6 @@ object* object_create(obj_type, void*);
 
 bool hit_sphere(ray, interval, hit_record*, object*);
 bool hit_triangle(ray, interval, hit_record*, object*);
+bool hit_quad(ray, interval, hit_record*, object*);
 
 #endif

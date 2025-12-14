@@ -43,19 +43,19 @@ void initialize() {
     c->pixel_samples_scale = 1.0 / ((double) SAMPLES_PER_PIXEL);
     c->max_depth = 50;
 
-    c->aspect_ratio = 16.0 / 9.0;
+    c->aspect_ratio = 1.0;
     c->image_width = 400;
     c->image_height = (int) (c->image_width / c->aspect_ratio);
     c->image_height = (c->image_height < 1) ? 1 : c->image_height;
 
     // configurable camera variables:
-    c->center = c->lookfrom = vec3_create(0, 0, 12);       // point looking from and camera center
+    c->center = c->lookfrom = vec3_create(0, 0, 9);       // point looking from and camera center
     c->lookat = vec3_create(0, 0, 0);                    // point looking at
-    c->vfov = 30;                                           // field of view
+    c->vfov = 80;                                           // field of view
     c->vup = vec3_create(0, 1.0, 0);                        // relative "up" direction
 
     // viewport dimensions:
-    c->defocus_angle = 0.6;
+    c->defocus_angle = 0;
     // c->focus_dist = vec3_length(vec3_sub(c->lookfrom, c->lookat));
     c->focus_dist = 10;
     double theta = degrees_to_radians(c->vfov);
