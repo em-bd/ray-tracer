@@ -1,6 +1,6 @@
 #include "material.h"
 
-/* local methods */
+// PRIVATE METHODS
 
 /**
  * Schlick's approximation for reflectance:
@@ -9,62 +9,6 @@ double reflectance(double cosine, double refraction_index) {
     double r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
     r0 = r0*r0;
     return r0 + (1.0 - r0) * pow((1.0 - cosine), 5);
-}
-
-/* public methods */
-
-/**
- * Create a material:
- */
-material* material_create(scatter_type type, void* data) {
-    material* m = malloc(sizeof(material));
-    if (m == NULL) {
-        perror("Malloc error.");
-        exit(1);
-    }
-    m->type = type;
-    m->data = data;
-    return m;
-}
-
-/**
- * Create a lambertian:
- */
-material* lambertian_create(texture* tex) {
-    lambertian* l = malloc(sizeof(lambertian));
-    if (l == NULL) {
-        perror("Malloc error.");
-        exit(1);
-    }
-    l->tex = tex;
-    return material_create(lambertian_type, l);
-}
-
-/**
- * Create a metal:
- */
-material* metal_create(color albedo, double fuzz) {
-    metal* m = malloc(sizeof(metal));
-    if (m == NULL) {
-        perror("Malloc error.");
-        exit(1);
-    }
-    m->albedo = albedo;
-    m->fuzz = fuzz;
-    return material_create(metal_type, m);
-}
-
-/**
- * Create a dielectric:
- */
-material* dielectric_create(double refraction_index) {
-    dielectric* d = malloc(sizeof(dielectric));
-    if (d == NULL) {
-        perror("Malloc error.");
-        exit(1);
-    }
-    d->refraction_index = refraction_index;
-    return material_create(dielectric_type, d);
 }
 
 /**
@@ -80,7 +24,7 @@ bool lambertian_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
         scatter_dir = rec.normal;
 
     *scattered = ray_create_time(rec.p, scatter_dir, r_in.tm);
-    *attenuation = value_func[l->tex->type](l->tex, rec.u, rec.v, rec.p);
+    *attenuation = value_func[l->tex->type](l->tex, &rec.u, &rec.v, rec.p);
     return true;
 }
 
@@ -121,8 +65,54 @@ bool dielectric_scatter(ray r_in, hit_record rec, color* attenuation, ray* scatt
     return true;
 }
 
-scatter_fn scatter_func[3] = {
+// PUBLIC METHODS
+
+scatter_fn scatter_func[NUM_SCATTER_TYPES] = {
     lambertian_scatter,
     metal_scatter,
     dielectric_scatter,
 };
+
+/**
+ * Create a material:
+ */
+material* material_create(scatter_type type, void* data) {
+    material* m = malloc(sizeof(material));
+    if (m == NULL) {
+        perror("Malloc error.");
+        exit(1);
+    }
+    m->type = type;
+    m->data = data;
+    return m;
+}
+
+void free_texture(texture* t) {
+    if (t == NULL)
+        return;
+
+    if (t->data != NULL) {
+        switch (t->type) {
+            case solid_tex:
+                free(t->data);
+                break;
+            case checkered_tex:
+                if (((checkered*) t->data)->even != NULL)
+                    free_texture(((checkered*) t->data)->even);
+                if (((checkered*) t->data)->odd != NULL)
+                    free_texture(((checkered*) t->data)->odd);
+                if (t->data != NULL)
+                    free(t->data);
+                break;
+            case image_tex:
+                if (((image*) t->data) != NULL) {
+                    if (((image*) t->data)->image != NULL)
+                        free_img(((image*) t->data)->image);
+                    free_img(t->data);
+                }
+                break;
+        }
+    }
+
+    free(t);
+}

@@ -3,15 +3,12 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -O2
 
 #Source files
-SRC = main.c material.c texture.c object.c aabb.c interval.c camera.c ray.c color.c vectors.c utils.c
+SRC = $(wildcard *.c Objects/*.c Materials/*.c Textures/*.c Utility/*.c)
 OBJ = $(SRC:.c=.o)
 
-# Detect platform
 ifeq ($(OS),Windows_NT)
-    RM = del /Q
 	TARGET = raytracer.exe
 else
-    RM = rm -f
 	TARGET = raytracer
 endif
 
@@ -26,4 +23,8 @@ $(TARGET): $(OBJ)
 
 # Clean up rule
 clean:
-	$(RM) $(OBJ) $(TARGET)
+ifeq ($(OS),Windows_NT)
+	cmd /C del /Q $(OBJ) $(TARGET)
+else
+	rm -f $(OBJ) $(TARGET)
+endif

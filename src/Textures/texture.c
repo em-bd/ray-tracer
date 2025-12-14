@@ -12,20 +12,6 @@ texture* texture_create(texture_type type, void* data) {
 }
 
 /**
- * Create a solid color texture:
- */
-texture* solid_create(double r, double g, double b) {
-    solid_color* s = malloc(sizeof(solid_color));
-    if (s == NULL) {
-        perror("Malloc error.");
-        exit(1);
-    }
-    s->albedo = vec3_create(r, g, b);
-
-    return texture_create(solid_tex, s);
-}
-
-/**
  * Create a checkered texture:
  */
 texture* checkered_create(double scale, texture* even, texture* odd) {
@@ -45,8 +31,8 @@ texture* checkered_create(double scale, texture* even, texture* odd) {
  * Create a checkered texture from two colors:
  */
 texture* checkered_create_from_solids(double scale, color evens, color odds) {
-    texture* even = solid_create(evens.x, evens.y, evens.z);
-    texture* odd = solid_create(odds.x, odds.y, odds.z);
+    texture* even = texture_create(solid_tex, solid_create(evens.x, evens.y, evens.z));
+    texture* odd = texture_create(solid_tex, solid_create(odds.x, odds.y, odds.z));
 
     return checkered_create(scale, even, odd);
 }
@@ -54,14 +40,14 @@ texture* checkered_create_from_solids(double scale, color evens, color odds) {
 /**
  * Get color value for the solid:
  */
-color solid_value(texture* t, double a, double b, point3 p) {
+color solid_value(texture* t, double* a, double* b, point3 p) {
     return ((solid_color*) t->data)->albedo;
 }
 
 /**
  * Get color value for the checkered texture:
  */
-color checkered_value(texture* t, double u, double v, point3 p) {
+color checkered_value(texture* t, double* u, double* v, point3 p) {
     checkered* c = (checkered*) t->data;
 
     int xInt = (int) floor(c->inv_scale * p.x);
@@ -73,7 +59,31 @@ color checkered_value(texture* t, double u, double v, point3 p) {
     return isEven ? value_func[c->even->type](c->even, u, v, p) : value_func[c->odd->type](c->odd, u, v, p);
 }
 
-value_fn value_func[2] = {
+/**
+ * Get the value for an image texture:
+ */
+color image_value(texture* t, double* u, double* v, point3 p) {
+    image* img = (image*) t->data;
+    if (img->image->image_height <= 0)
+        return vec3_create(0, 1, 1);
+
+    interval i0 = interval_create(0, 1);
+    *u = clamp(i0, *u);
+    *v = 1.0 - clamp(i0, *v);
+
+    int i = (int) (*u * img->image->image_width);
+    int j = (int) (*v * img->image->image_height);
+    const unsigned char* pixel = pixel_data(img->image, i, j);
+
+    double color_scale = 1.0/ 255.0;
+    return vec3_create(color_scale*pixel[0], color_scale*pixel[1], color_scale*pixel[2]);
+}
+
+/**
+ * Get color value for an image texture:
+ */
+
+value_fn value_func[NUM_TEX_TYPES] = {
     solid_value,
     checkered_value,
 };

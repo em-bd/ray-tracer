@@ -1,10 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "object.h"
-#include "color.h"
-#include "ray.h"
-#include "interval.h"
+#include "Objects/bvh_node.h"
 
 #define SAMPLES_PER_PIXEL 100
 

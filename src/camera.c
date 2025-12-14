@@ -49,7 +49,7 @@ void initialize() {
     c->image_height = (c->image_height < 1) ? 1 : c->image_height;
 
     // configurable camera variables:
-    c->center = c->lookfrom = vec3_create(13, 2, 3);       // point looking from and camera center
+    c->center = c->lookfrom = vec3_create(0, 0, 12);       // point looking from and camera center
     c->lookat = vec3_create(0, 0, 0);                    // point looking at
     c->vfov = 20;                                           // field of view
     c->vup = vec3_create(0, 1.0, 0);                        // relative "up" direction
@@ -115,10 +115,9 @@ void render() {
                 }
 
                 // write to file:
-                char * restrict line = malloc(sizeof(char) * 20);
+                char line[64];
                 write_color(line, vec3_scalar(pixel_color, c->pixel_samples_scale));
                 fprintf(f, "%s", line);
-                free(line);
             }
         }
     printf("Render completed.\n");

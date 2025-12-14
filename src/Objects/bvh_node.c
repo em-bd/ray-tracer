@@ -1,92 +1,6 @@
-#include "object.h"
+#include "bvh_node.h"
 
-/**
- * Determine if the ray hits the sphere:
- */
-bool hit_sphere(ray r, interval i, hit_record* rec, object* o) {
-    sphere* s = (sphere *) o->data;
-    point3 current_center = at(s->center, r.tm);
-    vec3 oc = vec3_sub(current_center, r.orig);
-    double a = length_sqd(r.dir);
-    double h = vec3_dot(r.dir, oc);
-    double c = length_sqd(oc) - s->radius * s->radius;
-
-    double discriminant = h*h - a*c;
-    if (discriminant < 0)
-        return false;
-
-    double sqrtd = sqrt(discriminant);
-
-    double root = (h - sqrtd) / a;
-    // check if the root is in the acceptable range:
-    if (!surrounds(i, root)) {
-        root = (h + sqrtd) / a;
-        if (!surrounds(i, root))
-            return false;
-    }
-
-    // update hit record:
-    rec->t = root;
-    rec->p = at(r, rec->t);
-    vec3 outward_normal = vec3_scalar(vec3_sub(rec->p, current_center), (1.0 / s->radius));
-    set_face_normal(r, outward_normal, rec);
-    rec->mat = ((sphere*) o->data)->mat;
-
-    return true;
-}
-
-/**
- * Determine if the ray hits the triangle:
- */
-bool hit_triangle(ray r, interval i, hit_record* rec, object* o) {
-    //TODO: complete triangle hit calculation
-    return true;
-}
-
-/**
- * Determine if the ray hits the BVH node:
- */
-bool hit_bvh(ray r, interval i, hit_record* rec, object* o) {
-    bvh_node* bvh = (bvh_node*) o->data;
-    hit_record left_rec, right_rec;
-
-    if (!aabb_hit(r, i, bvh->bbox))
-        return false;
-
-    bool hit_left = bvh->left && hit_func[bvh->left->type](r, i, &left_rec, bvh->left);
-    interval right_range = i;
-    if (hit_left) right_range.max = left_rec.t;
-    bool hit_right = bvh->right && hit_func[bvh->right->type](r, right_range, &right_rec, bvh->right);
-
-    if (hit_left && hit_right)
-        *rec = (right_rec.t < left_rec.t) ? right_rec : left_rec;
-    else if (hit_left)
-        *rec = left_rec;
-    else if (hit_right)
-        *rec = right_rec;
-
-    return hit_left || hit_right;
-}
-
-/**
- * Hit function array declaration:
- */
-hit_fn hit_func[4] = {
-    hit_sphere,
-    hit_sphere,
-    hit_triangle,
-    hit_bvh,
-};
-
-/**
- * Sets the normal to face outward from the surface:
- */
-void set_face_normal(ray r, vec3 outward_normal, hit_record* rec) {
-    rec->front_face = vec3_dot(r.dir, outward_normal) < 0;
-    rec->normal = rec->front_face ? outward_normal : vec3_negative(outward_normal);
-}
-
-// HELPER FUNCTIONS
+// PRIVATE FUNCTIONS
 
 /**
  * Sphere bounding box function
@@ -181,8 +95,46 @@ void stable_mergesort(object** objs, size_t left, size_t right, cmp_fn comp) {
     }
 }
 
-// CREATION FUNCTIONS
+/**
+ * Determine if the ray hits the BVH node:
+ */
+bool hit_bvh(ray r, interval i, hit_record* rec, object* o) {
+    bvh_node* bvh = (bvh_node*) o->data;
+    hit_record left_rec, right_rec;
 
+    if (!aabb_hit(r, i, bvh->bbox))
+        return false;
+
+    bool hit_left = bvh->left && hit_func[bvh->left->type](r, i, &left_rec, bvh->left);
+    interval right_range = i;
+    if (hit_left) right_range.max = left_rec.t;
+    bool hit_right = bvh->right && hit_func[bvh->right->type](r, right_range, &right_rec, bvh->right);
+
+    if (hit_left && hit_right)
+        *rec = (right_rec.t < left_rec.t) ? right_rec : left_rec;
+    else if (hit_left)
+        *rec = left_rec;
+    else if (hit_right)
+        *rec = right_rec;
+
+    return hit_left || hit_right;
+}
+
+// PUBLIC FUNCTIONS
+
+/**
+ * Hit function array declaration:
+ */
+hit_fn hit_func[NUM_OBJ_TYPES] = {
+    hit_sphere,
+    hit_sphere,
+    hit_triangle,
+    hit_bvh,
+};
+
+/**
+ * Create an object:
+ */
 object* object_create(obj_type type, void* data) {
     object* o = malloc(sizeof(object));
     if (o == NULL) {
@@ -197,45 +149,24 @@ object* object_create(obj_type type, void* data) {
 }
 
 /**
- * Create a sphere:
+ * Create a BVH node:
  */
-object* sphere_create(vec3 center, double radius, material* mat) {
-    sphere* s = malloc(sizeof(sphere));
-    if (s == NULL) {
+bvh_node* bvh_node_create(object* left, object* right) {
+    bvh_node* node = malloc(sizeof(bvh_node));
+    if (node == NULL) {
         perror("Malloc error.");
         exit(1);
     }
-    s->center = ray_create(center, vec3_create(0, 0, 0));
-    s->radius = radius;
-    s->mat = mat;
-    
-    return object_create(sphere_obj, s);
+    node->left = left;
+    node->right = right;
+    node->bbox = aabb_from_aabbs(node->left->bbox, node->right->bbox);
+    return node;
 }
 
-object* moving_sphere_create(point3 center1, point3 center2, double radius, material* mat) {
-    sphere* s = malloc(sizeof(sphere));
-    if (s == NULL) {
-        perror("Malloc error");
-        exit(1);
-    }
-    s->center = ray_create(center1, vec3_sub(center2, center1));
-    s->radius = radius;
-    s->mat = mat;
-
-    return object_create(moving_sphere_obj, s);
-}
 
 /**
- * Create a BVH node:
+ * Build the Bounding Volume Hierarchy:
  */
-bvh_node bvh_node_create(object* left, object* right) {
-    bvh_node bvh;
-    bvh.left = left;
-    bvh.right = right;
-    bvh.bbox = aabb_from_aabbs(left->bbox, right->bbox);
-    return bvh;
-}
-
 object* build_bvh(object** objs, size_t start, size_t end) {
     printf("Building a node.\n");
     size_t object_span = end - start;
@@ -257,12 +188,7 @@ object* build_bvh(object** objs, size_t start, size_t end) {
     left = build_bvh(objs, start, mid);
     right = build_bvh(objs, mid, end);
 
-    bvh_node* node = malloc(sizeof(bvh_node));
-    if (node == NULL) {
-        perror("Malloc error");
-        exit(1);
-    }
-    *node = bvh_node_create(left, right);
+    bvh_node* node = bvh_node_create(left, right);
 
     object* o = malloc(sizeof(object));
     if (o == NULL) {
@@ -284,28 +210,28 @@ void free_objects(object* o) {
     if (o == NULL)
         return;
 
-    switch (o->type) {
-        case sphere_obj:
-        case moving_sphere_obj:
-            if (o->data != NULL) {
-                if (((sphere*) o->data)->mat != NULL)
+    if (o->data != NULL) {
+        switch (o->type) {
+            case sphere_obj:
+            case moving_sphere_obj:
+                if (((sphere*) o->data)->mat != NULL) {
+                    if (((sphere*) o->data)->mat->data != NULL)
+                            free_texture(((sphere*) o->data)->mat->data);
                     free(((sphere*) o->data)->mat);
+                }
                 free(o->data);
-            }
-            break;
-        case triangle_obj:
-            if (o->data != NULL)
+                break;
+            case triangle_obj:
                 free(o->data);
-            break;
-        case bvh_node_obj:
-            if (o->data != NULL) {
+                break;
+            case bvh_node_obj:
                 if (((bvh_node*) o->data)->left != NULL)
                     free_objects(((bvh_node*) o->data)->left);
                 if (((bvh_node*) o->data)->right != NULL)
                     free_objects(((bvh_node*) o->data)->right);
                 free(o->data);
-            }
-            break;
+                break;
+        }
     }
     free(o);
 }
