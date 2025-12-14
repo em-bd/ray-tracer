@@ -1,7 +1,7 @@
 #ifndef QUAD_H
 #define QUAD_H
 
-#include "../Materials/material.h"
+#include "object.h"
 
 typedef struct {
     point3 Q;
@@ -9,9 +9,10 @@ typedef struct {
     material* mat;
     vec3 normal;
     double D;
+    aabb bbox;
 } quad;
 
-quad* quad_create(point3, vec3, vec3, material*);
+object* quad_create(point3, vec3, vec3, material*);
 
 bool is_interior(double, double, hit_record*);
 

@@ -2,6 +2,19 @@
 #define CAMERA_H
 
 #include "Objects/bvh_node.h"
+#include "Objects/quad.h"
+#include "Objects/sphere.h"
+#include "Objects/triangle.h"
+
+#include "Materials/dielectric.h"
+#include "Materials/emissive.h"
+#include "Materials/lambertian.h"
+#include "Materials/metal.h"
+
+#include "Textures/image.h"
+#include "Textures/noise_texture.h"
+#include "Textures/solid_color.h"
+#include "Textures/checkered.h"
 
 #define SAMPLES_PER_PIXEL 100
 

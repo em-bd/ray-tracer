@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Utility/color.h"
+#include "material.h"
 
 /**
  * Metal material data structure:
@@ -13,6 +13,6 @@ typedef struct {
     double fuzz;
 } metal;
 
-metal* metal_create(color, double);
+material* metal_create(color, double);
 
 #endif

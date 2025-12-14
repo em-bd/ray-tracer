@@ -2,12 +2,13 @@
 #define NOISE_TEXTURE_H
 
 #include "../Utility/perlin.h"
+#include "texture.h"
 
 typedef struct {
     perlin* perlin;
     double scale;
 } noise_texture;
 
-noise_texture* noise_create(double);
+texture* noise_create(double);
 
 #endif

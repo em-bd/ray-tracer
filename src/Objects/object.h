@@ -5,11 +5,9 @@
 
 #include "../Utility/aabb.h"
 #include "../Utility/utils.h"
-#include "sphere.h"
-#include "triangle.h"
-#include "quad.h"
+#include "../Materials/material.h"
 
-#define NUM_OBJ_TYPES       5
+typedef bool (*hit_fn)(ray, interval, hit_record*, void*);
 
 /**
  * Object Type enumerated data structure:
@@ -29,12 +27,9 @@ typedef struct {
     void* data;
     obj_type type;
     aabb bbox;
+    hit_fn hit;
 } object;
 
-object* object_create(obj_type, void*);
-
-bool hit_sphere(ray, interval, hit_record*, object*);
-bool hit_triangle(ray, interval, hit_record*, object*);
-bool hit_quad(ray, interval, hit_record*, object*);
+object* object_create(obj_type, void*, aabb, hit_fn);
 
 #endif

@@ -1,9 +1,16 @@
 #include "emissive.h"
 
 /**
+ * Scatter function for an emissive material:
+ */
+bool emissive_scatter(ray r_in, hit_record rec, color* attenuation, ray* scattered, void* mat) {
+    return false;
+}
+
+/**
  * Create an emissive material:
  */
-emissive* emissive_create(texture* t) {
+material* emissive_create(texture* t) {
     emissive* e = malloc(sizeof(emissive));
     if (e == NULL) {
         perror("Malloc error.");
@@ -11,19 +18,19 @@ emissive* emissive_create(texture* t) {
     }
     e->tex = t;
 
-    return e;
+    return material_create(emissive_type, e, emissive_scatter);
 }
 
 /**
  * Create an emissive material from a color:
  */
-emissive* emissive_create_color(color c) {
-    return emissive_create(texture_create(solid_tex, solid_create(c.x, c.y, c.z)));
+material* emissive_create_color(color c) {
+    return emissive_create(solid_create(c.x, c.y, c.z));
 }
 
 /**
  * Determine what color is emitted from this emissive material:
  */
 color emitted(emissive* e, double* u, double* v, point3* p) {
-    return value_func[e->tex->type](e->tex, u, v, p);
+    return e->tex->value(e->tex, u, v, p);
 }

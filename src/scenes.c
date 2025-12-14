@@ -23,8 +23,8 @@ void bouncing_spheres() {
     c->background = vec3_create(0.7, 0.8, 1);
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(0.2, 0.3, .1), vec3_create(.9, .9, .9));
-    material* ground = material_create(lambertian_type, lambertian_create(tex));
-    objects[i++] = object_create(sphere_obj, sphere_create(vec3_create(0, -1000, 0), 1000, ground));
+    material* ground = lambertian_create(tex);
+    objects[i++] = sphere_create(vec3_create(0, -1000, 0), 1000, ground);
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -49,22 +49,21 @@ void bouncing_spheres() {
                 // diffuse
                 if (choose_mat < 0.8) {
                     color albedo = vec3_mul(vec3_rand(), vec3_rand());
-                    texture* t = texture_create(solid_tex, solid_create(albedo.x, albedo.y, albedo.z));
-                    mat = material_create(lambertian_type, lambertian_create(t));
+                    mat = lambertian_create(solid_create(albedo.x, albedo.y, albedo.z));
                     point3 center2 = vec3_add(center, vec3_create(0, random_double(interval_create(0, 0.5)), 0));
-                    objects[i++] = object_create(moving_sphere_obj, moving_sphere_create(center, center2, 0.2, mat));
+                    objects[i++] = moving_sphere_create(center, center2, 0.2, mat);
                 }
                 // metal
                 else if (choose_mat < 0.95) {
                     color albedo = vec3_random(interval_create(0.5, 1));
                     double fuzz = random_double(interval_create(0, 0.5));
-                    mat = material_create(metal_type, metal_create(albedo, fuzz));
-                    objects[i++] = object_create(sphere_obj, sphere_create(center, 0.2, mat));
+                    mat = metal_create(albedo, fuzz);
+                    objects[i++] = sphere_create(center, 0.2, mat);
                 }
                 // dielectric
                 else {
-                    mat = material_create(dielectric_type, dielectric_create(1.5));
-                    objects[i++] = object_create(sphere_obj, sphere_create(center, 0.2, mat));
+                    mat = dielectric_create(1.5);
+                    objects[i++] = sphere_create(center, 0.2, mat);
                 }
             }
         }
@@ -81,12 +80,9 @@ void checkered_spheres() {
     c->background = vec3_create(0.7, 0.8, 1);
 
     texture* tex = checkered_create_from_solids(0.32, vec3_create(.2, .3, .1), vec3_create(.9, .9, .9));
-    material* mat0 = material_create(lambertian_type, lambertian_create(tex));
-    material* mat1 = material_create(lambertian_type, lambertian_create(tex));
 
-
-    objects[0] = object_create(sphere_obj, sphere_create(vec3_create(0, -10, 0), 10, mat0));
-    objects[1] = object_create(sphere_obj, sphere_create(vec3_create(0, 10, 0), 10, mat1));
+    objects[0] = sphere_create(vec3_create(0, -10, 0), 10, lambertian_create(tex));
+    objects[1] = sphere_create(vec3_create(0, 10, 0), 10, lambertian_create(tex));
     objects[2] = NULL;
 }
 
@@ -95,22 +91,19 @@ void checkered_spheres() {
  */
 void textured_spheres() {
     scene_init();
-    initialize((16.0/9.0), 400, vec3_create(0, 0, 12), vec3_create(0,0,0), 20, vec3_create(0,1,0), 0);
+    initialize((16.0/9.0), 400, vec3_create(0, 0, 12), vec3_create(0,0,0), 30, vec3_create(0,1,0), 0);
     c->background = vec3_create(0.7, 0.8, 1);
 
     // globe:
-    image* img = image_create("Tx_AI_grass_dirt_01.png");
+    texture* img = image_create("tx_gl_dirt_grass_02.png");
     if (img == NULL) {
         fprintf(stderr, "Failed to load earthmap.\n");
         return;
     }
-    texture* tex0 = texture_create(image_tex, img);
-    material* mat0 = material_create(lambertian_type, lambertian_create(tex0));
-    objects[0] = object_create(sphere_obj, sphere_create(vec3_create(2, 0, 0), 2, mat0));
+    objects[0] = sphere_create(vec3_create(2, 0, 0), 2, lambertian_create(img));
 
-    texture* tex1 = texture_create(noise_tex, noise_create(4));
-    material* mat1 = material_create(lambertian_type, lambertian_create(tex1));
-    objects[1] = object_create(sphere_obj, sphere_create(vec3_create(-2, 0, 0), 2, mat1));
+    material* mat1 = lambertian_create(noise_create(4));
+    objects[1] = sphere_create(vec3_create(-2, 0, 0), 2, mat1);
 
     objects[2] = NULL;
 }
@@ -123,25 +116,20 @@ void quads() {
     initialize(1.0, 400, vec3_create(0, 0, 9), vec3_create(0,0,0), 80, vec3_create(0,1,0), 0);
     c->background = vec3_create(0.7, 0.8, 1);
 
-    texture* red = texture_create(solid_tex, solid_create(1, 0.2, 0.2));
-    material* left = material_create(lambertian_type, lambertian_create(red));
-    object* q1 = object_create(quad_obj, quad_create(vec3_create(-3, -2, 5), vec3_create(0, 0, -4), vec3_create(0, 4, 0), left));
+    material* left = lambertian_create(solid_create(1, 0.2, 0.2));
+    object* q1 = quad_create(vec3_create(-3, -2, 5), vec3_create(0, 0, -4), vec3_create(0, 4, 0), left);
     
-    texture* green = texture_create(solid_tex, solid_create(0.2, 1.0, 0.2));
-    material* back = material_create(lambertian_type, lambertian_create(green));
-    object* q2 = object_create(quad_obj, quad_create(vec3_create(-2, -2, 0), vec3_create(4, 0, 0), vec3_create(0, 4, 0), back));
+    material* back = lambertian_create(solid_create(0.2, 1.0, 0.2));
+    object* q2 = quad_create(vec3_create(-2, -2, 0), vec3_create(4, 0, 0), vec3_create(0, 4, 0), back);
     
-    texture* blue = texture_create(solid_tex, solid_create(0.2, 0.2, 1.0));
-    material* right = material_create(lambertian_type, lambertian_create(blue));
-    object* q3 = object_create(quad_obj, quad_create(vec3_create(3, -2, 1), vec3_create(0, 0, 4), vec3_create(0, 4, 0), right));
+    material* right = lambertian_create(solid_create(0.2, 0.2, 1.0));
+    object* q3 = quad_create(vec3_create(3, -2, 1), vec3_create(0, 0, 4), vec3_create(0, 4, 0), right);
     
-    texture* orange = texture_create(solid_tex, solid_create(1.0, 0.5, 0.0));
-    material* top = material_create(lambertian_type, lambertian_create(orange));
-    object* q4 = object_create(quad_obj, quad_create(vec3_create(-2, 3, 1), vec3_create(4, 0, 0), vec3_create(0, 0, 4), top));
+    material* top = lambertian_create(solid_create(1.0, 0.5, 0.0));
+    object* q4 = quad_create(vec3_create(-2, 3, 1), vec3_create(4, 0, 0), vec3_create(0, 0, 4), top);
     
-    texture* teal = texture_create(solid_tex, solid_create(0.2, 0.8, 0.8));
-    material* bottom = material_create(lambertian_type, lambertian_create(teal));
-    object* q5 = object_create(quad_obj, quad_create(vec3_create(-2, -3, 5), vec3_create(4, 0, 0), vec3_create(0, 0, -4), bottom));
+    material* bottom = lambertian_create(solid_create(0.2, 0.8, 0.8));
+    object* q5 = quad_create(vec3_create(-2, -3, 5), vec3_create(4, 0, 0), vec3_create(0, 0, -4), bottom);
 
     objects[0] = q1;
     objects[1] = q2;
@@ -156,14 +144,12 @@ void simple_light() {
     initialize((16.0/9.0), 400, vec3_create(26,3,6), vec3_create(0,2,0), 20, vec3_create(0,1,0), 0);
     c->background = vec3_create(0,0,0);
 
-    texture* pertext = texture_create(noise_tex, noise_create(4));
-    object* s0 = object_create(sphere_obj, sphere_create(vec3_create(0, -1000, 0), 1000, material_create(lambertian_type, lambertian_create(pertext))));
-    object* s1 = object_create(sphere_obj, sphere_create(vec3_create(0, 2, 0), 2, material_create(lambertian_type, lambertian_create(pertext))));
+    object* s0 = sphere_create(vec3_create(0, -1000, 0), 1000, lambertian_create(noise_create(4)));
+    object* s1 = sphere_create(vec3_create(0, 2, 0), 2, lambertian_create(noise_create(4)));
     objects[0] = s0;
     objects[1] = s1;
 
-    material* difflight = material_create(emissive_type, emissive_create_color(vec3_create(4,4,4)));
-    object* s2 = object_create(sphere_obj, sphere_create(vec3_create(0,7,0), 2, difflight));
+    object* s2 = sphere_create(vec3_create(0,7,0), 2, emissive_create_color(vec3_create(4,4,4)));
     objects[2] = s2;
     objects[3] = NULL;
 }
@@ -176,32 +162,28 @@ void simple_triangle() {
     initialize((16.0/9.0), 400, vec3_create(0,1,2), vec3_create(0,0,-3), 40, vec3_create(0,1,0), 0);
     c->background = vec3_create(0,0,0);
 
-    texture* tex = texture_create(solid_tex, solid_create(0.8, 0.2, 0.2));
-    material* mat = material_create(lambertian_type, lambertian_create(tex));
-    object* ground = object_create(sphere_obj, sphere_create(vec3_create(0,-1001,0),1000,mat));
+    object* ground = sphere_create(vec3_create(0,-1001,0),1000,lambertian_create(solid_create(0.8, 0.2, 0.2)));
     objects[0] = ground;
 
-    texture* tex0 = texture_create(solid_tex, solid_create(0.8, 0.8, 0.8));
-    material* mat0 = material_create(lambertian_type, lambertian_create(tex0));
-    object* tri0 = object_create(triangle_obj, 
-            triangle_create(vec3_create(-1,0,-3), vec3_create(1,0,-3), vec3_create(0,1,-3), mat0));
+    object* tri0 = triangle_create(vec3_create(-1,0,-3), vec3_create(1,0,-3), vec3_create(0,1,-3), 
+                lambertian_create(solid_create(0.8, 0.8, 0.8)));
     objects[1] = tri0;
 
-    texture* tex1 = texture_create(solid_tex, solid_create(0.1, 0.7, 0.9));
-    material* mat1 = material_create(lambertian_type, lambertian_create(tex1));
-    object* tri1 = object_create(triangle_obj,
-            triangle_create(vec3_create(-1,0,-3), vec3_create(1,0,-3), vec3_create(0,-1,-3), mat1));
+    object* tri1 = triangle_create(vec3_create(-1,0,-3), vec3_create(1,0,-3), vec3_create(0,-1,-3),
+                lambertian_create(solid_create(0.1, 0.7, 0.9)));
     objects[2] = tri1;
 
-    material* mat2 = material_create(emissive_type, emissive_create_color(vec3_create(0.8, 0.2, 0.2)));
-    object* tri2 = object_create(triangle_obj, 
-            triangle_create(vec3_create(-2,0,-1), vec3_create(-2,0,-3), vec3_create(-2,1,-2), mat2));
+    object* tri2 = triangle_create(vec3_create(-2,0,-1), vec3_create(-2,0,-3), vec3_create(-2,1,-2), 
+                    emissive_create_color(vec3_create(0.8, 0.2, 0.2)));
     objects[3] = tri2;
 
-    material* mat3 = material_create(emissive_type, emissive_create_color(vec3_create(1.0, 0.65, 0.0)));
-    object* tri3 = object_create(triangle_obj,
-            triangle_create(vec3_create(-2,0,-1), vec3_create(-2,0,-3), vec3_create(-2,-1,-2), mat3));
+    object* tri3 = triangle_create(vec3_create(-2,0,-1), vec3_create(-2,0,-3), vec3_create(-2,-1,-2), 
+                    emissive_create_color(vec3_create(1.0, 0.65, 0.0)));
     objects[4] = tri3;
 
-    objects[7] = NULL;
+    objects[5] = NULL;
 }
+
+/**
+ * Final put together scene:
+ */

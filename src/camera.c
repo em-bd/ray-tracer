@@ -138,15 +138,15 @@ color ray_color(ray r, int depth) {
 
     hit_record rec;
     // ray hits nothing, return background color:
-    if (!hit_func[world->type](r, interval_create(0.001, infinity), &rec, world))    return c->background;
+    if (!world->hit(r, interval_create(0.001, infinity), &rec, world))    return c->background;
 
     ray scattered;
     color attenuation;
     color emission_color = vec3_create(0,0,0);
-    if (rec.mat->type == emissive_type)
-        emission_color = emitted((emissive*) rec.mat->data, &rec.u, &rec.v, &rec.p);
+    if (((material*) rec.mat)->type == emissive_type)
+        emission_color = emitted((emissive*) ((material*) rec.mat)->data, &rec.u, &rec.v, &rec.p);
 
-    if (!scatter_func[rec.mat->type](r, rec, &attenuation, &scattered, rec.mat))    return emission_color;
+    if (!((material*) rec.mat)->scatter(r, rec, &attenuation, &scattered, rec.mat))    return emission_color;
 
     color scatter_color = vec3_mul(attenuation, ray_color(scattered, depth - 1));
 

@@ -2,11 +2,9 @@
 #define TEXTURE_H
 
 #include "../Utility/color.h"
-#include "image.h"
-#include "solid_color.h"
-#include "noise_texture.h"
+#include "../Utility/utils.h"
 
-#define NUM_TEX_TYPES       4
+typedef color (*value_fn)(void*, double*, double*, point3*);
 
 typedef enum {
     solid_tex,
@@ -18,21 +16,9 @@ typedef enum {
 typedef struct {
     void* data;
     texture_type type;
+    value_fn value;
 } texture;
 
-typedef struct {
-    double inv_scale;
-    texture* even;
-    texture* odd;
-} checkered;
-
-texture* texture_create(texture_type, void*);
-
-texture* checkered_create(double, texture*, texture*);
-
-texture* checkered_create_from_solids(double, color, color);
-
-typedef color (*value_fn)(texture*, double*, double*, point3*);
-extern value_fn value_func[NUM_TEX_TYPES];
+texture* texture_create(texture_type, void*, value_fn);
 
 #endif

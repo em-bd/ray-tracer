@@ -1,9 +1,7 @@
 #ifndef LAMBERTIAN_H
 #define LAMBERTIAN_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "../Textures/texture.h"
+#include "material.h"
 
 /**
  * Lambertian data structure:
@@ -12,6 +10,6 @@ typedef struct {
     texture* tex;
 } lambertian;
 
-lambertian* lambertian_create(texture*);
+material* lambertian_create(texture*);
 
 #endif

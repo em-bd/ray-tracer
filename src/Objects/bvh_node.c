@@ -2,69 +2,6 @@
 
 // PRIVATE FUNCTIONS
 
-/**
- * Sphere bounding box function
- */
-void sphere_box(object* o) {
-    sphere* s = (sphere*) o->data;
-    vec3 rvec = vec3_create(s->radius, s->radius, s->radius);
-    o->bbox = aabb_points(vec3_sub(s->center.orig, rvec), vec3_add(s->center.orig, rvec));
-}
-
-/**
- * Calculates the bbox for a moving sphere:
- */
-void moving_sphere_box(object* o) {
-    sphere* s = (sphere*) o->data;
-    vec3 center0 = at(s->center, 0);
-    vec3 center1 = at(s->center, 1);
-    vec3 r = vec3_create(s->radius, s->radius, s->radius);
-
-    aabb box0 = aabb_points(vec3_sub(center0, r), vec3_add(center0, r));
-    aabb box1 = aabb_points(vec3_sub(center1, r), vec3_add(center1, r));
-
-    o->bbox = aabb_from_aabbs(box0, box1);
-}
-
-/**
- * Triangle bounding box function
- */
-void triangle_box(object* o) {
-    triangle* t = (triangle*) o->data;
-
-    double x_min = fmin(t->a.x, fmin(t->b.x, t->c.x));
-    double y_min = fmin(t->a.y, fmin(t->b.y, t->c.y));
-    double z_min = fmin(t->a.z, fmin(t->b.z, t->c.z));
-
-    double x_max = fmax(t->a.x, fmax(t->b.x, t->c.x));
-    double y_max = fmax(t->a.y, fmax(t->b.y, t->c.y));
-    double z_max = fmax(t->a.z, fmax(t->b.z, t->c.z));
-
-    point3 min = vec3_create(x_min - epsilon, y_min - epsilon, z_min - epsilon);
-    point3 max = vec3_create(x_max + epsilon, y_max + epsilon, z_max + epsilon);
-
-    o->bbox = aabb_points(min, max);
-}
-
-/**
- * Quadrilateral bounding box function
- */
-void quad_box(object* o) {
-    quad* q = (quad*) o->data;
-
-    aabb bbox_diagonal1 = aabb_points(q->Q, vec3_add(q->Q, vec3_add(q->u, q->v)));
-    aabb bbox_diagonal2 = aabb_points(vec3_add(q->Q, q->u), vec3_add(q->Q, q->v));
-    o->bbox = aabb_from_aabbs(bbox_diagonal1, bbox_diagonal2);
-}
-
-typedef void (*aabb_fn)(object*);
-aabb_fn aabb_func[4] = {
-    sphere_box,
-    moving_sphere_box,
-    triangle_box,
-    quad_box,
-};
-
 // comparator functions:
 int box_x_compare(const object* a, const object* b) {
     return a->bbox.x.min < b->bbox.x.min ? -1 : (a->bbox.x.min > b->bbox.x.min ? 1 : 0);
@@ -123,17 +60,17 @@ void stable_mergesort(object** objs, size_t left, size_t right, cmp_fn comp) {
 /**
  * Determine if the ray hits the BVH node:
  */
-bool hit_bvh(ray r, interval i, hit_record* rec, object* o) {
-    bvh_node* bvh = (bvh_node*) o->data;
+bool hit_bvh(ray r, interval i, hit_record* rec, void* o) {
+    bvh_node* bvh = ((bvh_node*) ((object*) o)->data);
     hit_record left_rec, right_rec;
 
     if (!aabb_hit(r, i, bvh->bbox))
         return false;
 
-    bool hit_left = bvh->left && hit_func[bvh->left->type](r, i, &left_rec, bvh->left);
+    bool hit_left = bvh->left && bvh->left->hit(r, i, &left_rec, bvh->left);
     interval right_range = i;
     if (hit_left) right_range.max = left_rec.t;
-    bool hit_right = bvh->right && hit_func[bvh->right->type](r, right_range, &right_rec, bvh->right);
+    bool hit_right = bvh->right && bvh->right->hit(r, right_range, &right_rec, bvh->right);
 
     if (hit_left && hit_right)
         *rec = (right_rec.t < left_rec.t) ? right_rec : left_rec;
@@ -148,36 +85,9 @@ bool hit_bvh(ray r, interval i, hit_record* rec, object* o) {
 // PUBLIC FUNCTIONS
 
 /**
- * Hit function array declaration:
- */
-hit_fn hit_func[NUM_OBJ_TYPES] = {
-    hit_sphere,
-    hit_sphere,
-    hit_triangle,
-    hit_quad,
-    hit_bvh,
-};
-
-/**
- * Create an object:
- */
-object* object_create(obj_type type, void* data) {
-    object* o = malloc(sizeof(object));
-    if (o == NULL) {
-        perror("Malloc error.");
-        exit(1);
-    }
-    o->type = type;
-    o->data = data;
-    // determine which bounding box to assign to this object:
-    aabb_func[o->type](o);
-    return o;
-}
-
-/**
  * Create a BVH node:
  */
-bvh_node* bvh_node_create(object* left, object* right) {
+object* bvh_node_create(object* left, object* right) {
     bvh_node* node = malloc(sizeof(bvh_node));
     if (node == NULL) {
         perror("Malloc error.");
@@ -186,7 +96,7 @@ bvh_node* bvh_node_create(object* left, object* right) {
     node->left = left;
     node->right = right;
     node->bbox = aabb_from_aabbs(node->left->bbox, node->right->bbox);
-    return node;
+    return object_create(bvh_node_obj, node, node->bbox, hit_bvh);
 }
 
 /**
@@ -213,19 +123,9 @@ object* build_bvh(object** objs, size_t start, size_t end) {
     left = build_bvh(objs, start, mid);
     right = build_bvh(objs, mid, end);
 
-    bvh_node* node = bvh_node_create(left, right);
-
-    object* o = malloc(sizeof(object));
-    if (o == NULL) {
-        perror("Malloc error.");
-        exit(1);
-    }
-    o->data = node;
-    o->type = bvh_node_obj;
-    o->bbox = aabb_from_aabbs(left->bbox, right->bbox);
-
+    object* node = bvh_node_create(left, right);
     printf("Done building node.\n");
-    return o;
+    return node;
 }
 
 /**

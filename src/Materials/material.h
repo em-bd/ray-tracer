@@ -1,13 +1,12 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "../Utility/ray.h"
-#include "metal.h"
-#include "lambertian.h"
-#include "dielectric.h"
-#include "emissive.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-#define NUM_SCATTER_TYPES       4
+#include "../Utility/ray.h"
+#include "../Utility/color.h"
+#include "../Textures/texture.h"
 
 /**
  * Scatter type enumeration structure:
@@ -20,14 +19,6 @@ typedef enum {
 } scatter_type;
 
 /**
- * Material data structure:
- */
-typedef struct {
-    void* data;
-    scatter_type type;
-} material;
-
-/**
  * Hit record data structure:
  */
 typedef struct {
@@ -37,13 +28,20 @@ typedef struct {
     bool front_face;
     double u;
     double v;
-    material* mat;
+    void* mat;
 } hit_record;
 
-typedef bool (*scatter_fn)(ray, hit_record, color*, ray*, material*);
+typedef bool (*scatter_fn)(ray, hit_record, color*, ray*, void*);
 
-material* material_create(scatter_type, void*);
+/**
+ * Material data structure:
+ */
+typedef struct {
+    void* data;
+    scatter_type type;
+    scatter_fn scatter;
+} material;
 
-extern scatter_fn scatter_func[NUM_SCATTER_TYPES];
+material* material_create(scatter_type, void*, scatter_fn);
 
 #endif
