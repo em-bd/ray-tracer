@@ -26,11 +26,11 @@ Currently, the project Makefile only supports Linux/MacOS or Windows with MSYS2 
 
 If you're running off of Linux/MacOS, first compile the project:
 
-`make`
+``make``
 
 Running off of Windows with MSYS MINGW64, use this command to compile and then run:
 
-`mingw32-make`
+``mingw32-make``
 
 The executable will automatically generate the bouncing spheres scene, but to generate any of the others, here's a list of scenes that can be generated and their corresponding numbers:
 
