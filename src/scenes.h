@@ -18,6 +18,8 @@ void simple_triangle();
 
 void low_poly_mesh();
 
+void final_scene();
+
 extern object** objects;
 
 #endif

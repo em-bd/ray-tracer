@@ -84,7 +84,13 @@ object* quad_create(point3 Q, vec3 u, vec3 v, material* mat) {
     vec3 n = vec3_cross(q->u, q->v);
     q->normal = vec3_unit(n);
     q->D = vec3_dot(q->normal, q->Q);
-    q->w = vec3_scalar(n, (1 / vec3_dot(n, n)));
+
+    // check for division by 0:
+    double nn = vec3_dot(n,n);
+    if (nn == 0)
+        q->w = vec3_create(0,0,0);
+    else
+        q->w = vec3_scalar(n, (1 / vec3_dot(n, n)));
 
     q->bbox = quad_box(q);
 

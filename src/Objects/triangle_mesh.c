@@ -3,6 +3,41 @@
 // PRIVATE METHODS
 
 /**
+ * Compute per-vertex normals for a triangle mesh:
+ */
+void compute_normals(triangle_mesh* t) {
+    // initialize normals:
+    t->normals = malloc(sizeof(vec3) * t->n_v);
+    for (int i = 0; i < t->n_v; i++)
+        t->normals[i] = vec3_create(0, 0, 0);
+
+    // accumulate face normals:
+    for (int i = 0; i < t->n_t; i++) {
+        int i0 = t->indices[i*3];
+        int i1 = t->indices[i*3 + 1];
+        int i2 = t->indices[i*3 + 2];
+
+        point3 v0 = t->vertices[i0];
+        point3 v1 = t->vertices[i1];
+        point3 v2 = t->vertices[i2];
+
+        // face normal:
+        vec3 e1 = vec3_sub(v1, v0);
+        vec3 e2 = vec3_sub(v2, v0);
+        vec3 face_normal = vec3_normalize(vec3_cross(e1, e2));
+
+        // add to each vertex normal:
+        t->normals[i0] = vec3_add(t->normals[i0], face_normal);
+        t->normals[i1] = vec3_add(t->normals[i1], face_normal);
+        t->normals[i2] = vec3_add(t->normals[i2], face_normal);
+    }
+
+    // normalize all vertex normals:
+    for (int i = 0; i < t->n_v; i++)
+        t->normals[i] = vec3_normalize(t->normals[i]);
+}
+
+/**
  * Determine if a ray hits a triangle mesh:
  */
 bool hit_triangle_mesh(ray r, interval in, hit_record* rec, void* o) {
@@ -63,6 +98,7 @@ object* triangle_mesh_create(point3* vertices, int n_v, int* indices, int n_t, m
 
     // build the BVH for the triangles in the mesh:
     tm->bvh = build_bvh(tris, 0, n_t);
+    compute_normals(tm);
 
     return object_create(triangle_mesh_obj, tm, mesh_bbox(tm), hit_triangle_mesh);
 }

@@ -66,6 +66,18 @@ vec3 vec3_unit(vec3 v) {
 }
 
 /**
+ * Normalize the vector
+ */
+vec3 vec3_normalize(vec3 v) {
+    // length is 0, return a 0 vector:
+    if (vec3_length(v) == 0.0)
+        return vec3_create(0,0,0);
+
+    double inv = 1.0 / vec3_length(v);
+    return vec3_create(v.x * inv, v.y * inv, v.z * inv);
+}
+
+/**
  * Generate a random point inside a unit disk:
  */
 vec3 random_in_unit_disk() {

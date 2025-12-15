@@ -34,6 +34,10 @@ int main(int argc, char* argvc[]) {
                 printf("Generating a low-poly eevee model.\n");
                 low_poly_mesh();
                 break;
+            case 8:
+                printf("Generating a finalized scene.\n");
+                final_scene();
+                break;
             default:
                 printf("Generating bouncing spheres.\n");
                 bouncing_spheres();
@@ -43,6 +47,7 @@ int main(int argc, char* argvc[]) {
 
     int i = 0;
     while (objects[i] != NULL) ++i;
+    printf("Building %d nodes.\n", i);
     world = build_bvh(objects, 0, i);
     // Render
     render();

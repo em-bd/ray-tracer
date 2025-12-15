@@ -3,19 +3,22 @@
 // PRIVATE FUNCTIONS
 
 // comparator functions:
-int box_x_compare(const object* a, const object* b) {
-    return a->bbox.x.min < b->bbox.x.min ? -1 : (a->bbox.x.min > b->bbox.x.min ? 1 : 0);
+int box_x_compare(const void* a, const void* b) {
+    return (*(const object* const*) a)->bbox.x.min < (*(const object* const*) b)->bbox.x.min ? -1 :
+            ((*(const object* const*) a)->bbox.x.min > (*(const object* const*) b)->bbox.x.min ? 1 : 0);
 }
 
-int box_y_compare(const object* a, const object* b) {
-    return a->bbox.y.min < b->bbox.y.min ? -1 : (a->bbox.y.min > b->bbox.y.min ? 1 : 0);
+int box_y_compare(const void* a, const void* b) {
+    return (*(const object* const*) a)->bbox.y.min < (*(const object* const*) b)->bbox.y.min ? -1 :
+            ((*(const object* const*) a)->bbox.y.min > (*(const object* const*) b)->bbox.y.min ? 1 : 0);
 }
 
-int box_z_compare(const object* a, const object* b) {
-    return a->bbox.z.min < b->bbox.z.min ? -1 : (a->bbox.z.min > b->bbox.z.min ? 1 : 0);
+int box_z_compare(const void* a, const void* b) {
+    return (*(const object* const*) a)->bbox.z.min < (*(const object* const*) b)->bbox.z.min ? -1 :
+            ((*(const object* const*) a)->bbox.z.min > (*(const object* const*) b)->bbox.z.min ? 1 : 0);
 }
 
-typedef int (*cmp_fn)(const object*, const object*);
+typedef int (*cmp_fn)(const void*, const void*);
 cmp_fn comp_fn[3] = {
     box_x_compare,
     box_y_compare,
@@ -103,28 +106,42 @@ object* bvh_node_create(object* left, object* right) {
  * Build the Bounding Volume Hierarchy:
  */
 object* build_bvh(object** objs, size_t start, size_t end) {
-    printf("Building a node.\n");
+    if (end <= start) {
+        fprintf(stderr, "Invalid range start=%zu, end=%zu.\n", start, end);
+        exit(1);
+    }
+
     size_t object_span = end - start;
-    if (object_span == 1)
+    if (object_span == 1) {
+        if (objs[start] == NULL) {
+            fprintf(stderr, "BVH leaf is NULL at index %zu.", start);
+            exit(1);
+        }
         return objs[start];
+    }
 
     aabb bbox = empty_aabb;
     // build bounding box for the span of objects:
-    for (size_t i=start; i < end; i++)
+    for (size_t i=start; i < end; i++) {
+        if (objs[i] == NULL) {
+            fprintf(stderr, "NULL object in BVH at index %zu.\n", i);
+            exit(1);
+        }
         bbox = aabb_from_aabbs(bbox, objs[i]->bbox);
+    }
 
     int axis = longest_axis(bbox);
     object* left;
     object* right;
 
-    stable_mergesort(objs + start, 0, object_span - 1, comp_fn[axis]);
+    // stable_mergesort(objs + start, 0, object_span - 1, comp_fn[axis]);
+    qsort(objs + start, object_span, sizeof(object*), comp_fn[axis]);
 
     size_t mid = start + object_span / 2;
     left = build_bvh(objs, start, mid);
     right = build_bvh(objs, mid, end);
 
     object* node = bvh_node_create(left, right);
-    printf("Done building node.\n");
     return node;
 }
 

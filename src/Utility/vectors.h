@@ -27,6 +27,8 @@ vec3 vec3_scalar(vec3, double);
 
 vec3 vec3_unit(vec3);
 
+vec3 vec3_normalize(vec3);
+
 vec3 random_in_unit_disk();
 
 vec3 vec3_negative(vec3);

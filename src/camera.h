@@ -16,7 +16,7 @@
 #include "Textures/solid_color.h"
 #include "Textures/checkered.h"
 
-#define SAMPLES_PER_PIXEL 100
+#define SAMPLES_PER_PIXEL 1000
 
 /**
  * Camera data structure:

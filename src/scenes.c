@@ -159,7 +159,7 @@ void simple_light() {
  */
 void simple_triangle() {
     scene_init();
-    initialize((16.0/9.0), 400, vec3_create(0,1,2), vec3_create(0,0,-3), 40, vec3_create(0,1,0), 0);
+    initialize(1.0, 400, vec3_create(2,1,9), vec3_create(-1,0,-3), 40, vec3_create(0,1,0), 0);
     c->background = vec3_create(0,0,0);
 
     object* ground = sphere_create(vec3_create(0,-1001,0),1000,lambertian_create(solid_create(0.8, 0.2, 0.2)));
@@ -181,7 +181,11 @@ void simple_triangle() {
                     emissive_create_color(vec3_create(1.0, 0.65, 0.0)));
     objects[4] = tri3;
 
-    objects[5] = NULL;
+    material* top = emissive_create(solid_create(1.0, 0.5, 0.0));
+    object* q4 = quad_create(vec3_create(-2, 2, -1), vec3_create(4, 0, 0), vec3_create(0, 0, 4), top);
+    objects[5] = q4;
+
+    objects[6] = NULL;
 }
 
 /**
@@ -189,6 +193,8 @@ void simple_triangle() {
  */
 void low_poly_mesh() {
     scene_init();
+    initialize(1.0, 400, vec3_create(0, 0, 0), vec3_create(0, 0, 0), 45, vec3_create(0,0,1), 0);
+    c->background = vec3_create(0.7, 0.8, 1);
 
     material* m1 = lambertian_create(solid_create(.388, .235, .082));
     material *m2 = lambertian_create(solid_create(.937, .859, .714));
@@ -201,7 +207,7 @@ void low_poly_mesh() {
     point3 center = aabb_center(eevee_body->bbox);
     double diag = aabb_diagonal(eevee_body->bbox);
 
-    initialize(1.0, 400, vec3_create(center.x, center.y - diag * 2.0, center.z + diag * 0.5), center, 45, vec3_create(0,0,1), 0);
+    initialize(1.0, 400, vec3_create(center.x - diag * .25, center.y - diag * 2.0, center.z + diag * 0.5), center, 45, vec3_create(0,0,1), 0);
     c->background = vec3_create(0.7, 0.8, 1);
 
     // ground sphere:
@@ -213,3 +219,60 @@ void low_poly_mesh() {
 /**
  * Final put together scene:
  */
+void final_scene() {
+    int capacity = 10;
+    scene_init();
+    initialize(1.0, 400, vec3_create(478,278,-600), vec3_create(278,278,0), 40, vec3_create(0,1,0), 0);
+    c->background = vec3_create(0,0,0);
+
+    material* ground = lambertian_create(solid_create(0.48,0.83,0.53));
+    int boxes_per_side = 20;
+    int n = 0;
+    for (int i = 0; i < boxes_per_side; i++) {
+        for (int j = 0; j < boxes_per_side; j++) {
+            double w = 100.0;
+            double x0 = -1000.0 + i*w;
+            double z0 = -1000.0 + j*w;
+            double y0 = 0.0;
+            double x1 = x0 + w;
+            double y1 = random_double(interval_create(1.0,101.0));
+            double z1 = z0 + w;
+
+            object** boxes = box(vec3_create(x0,y0,z0), vec3_create(x1,y1,z1), ground);
+            for (int k = 0; k < 6; k++) {
+                if (n >= capacity) {
+                    capacity *= 2;
+                    objects = realloc(objects, sizeof(object*) * capacity);
+                    if (objects == NULL) {
+                        perror("Realloc error.");
+                        exit(1);
+                    }
+                }
+                objects[n++] = boxes[k];
+            }
+        }
+    }
+
+    // light:
+    objects[n++] = quad_create(vec3_create(123, 554, 147), vec3_create(300, 0, 0), vec3_create(0, 0, 265), emissive_create(solid_create(4,4,4)));
+
+    // textured sphere:
+    texture* img = image_create("tx_item_pot_glass_peach_01.png");
+    objects[n++] = sphere_create(vec3_create(400,200,400), 100, lambertian_create(img));
+
+    // moving sphere:
+    vec3 center1 = vec3_create(400,400,200);
+    vec3 center2 = vec3_add(center1, vec3_create(30,0,0));
+    objects[n++] = moving_sphere_create(center1, center2, 50, lambertian_create(solid_create(0.7,0.3,0.1)));
+
+    // noisy sphere:
+    objects[n++] = sphere_create(vec3_create(220,280,300), 80, lambertian_create(noise_create(4)));
+
+    // dielectric sphere:
+    objects[n++] = sphere_create(vec3_create(360, 150, 145), 70, dielectric_create(1.5));
+
+    // metal sphere:
+    objects[n++] = sphere_create(vec3_create(0,150,145), 50, metal_create(vec3_create(0.8,0.8,0.9), 0.01));
+
+    objects[n] = NULL;
+}

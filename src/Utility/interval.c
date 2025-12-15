@@ -25,8 +25,8 @@ interval interval_displacement(interval i, double displacement) {
  */
 interval interval_from_intervals(interval i1, interval i2) {
     interval i;
-    i.min = (i1.min <= i2.min) ? i1.min : i2.min;
-    i.max = (i1.max >= i2.max) ? i1.max : i2.max;
+    i.min = fmin(i1.min, i2.min);
+    i.max = fmax(i1.max, i2.max);
     return i;
 }
 
